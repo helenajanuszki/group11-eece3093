@@ -22,6 +22,9 @@ class User(db.Model):
             "phone_number": self.phone_number,
             "role": self.role,
         }
+    
+    def is_admin(self):
+        return self.role == "admin"
 
 class TodoList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +55,7 @@ class Task(db.Model):
     status = db.Column(db.String(20), default="incomplete")
     priority = db.Column(db.Enum(TaskPriority), default=TaskPriority.low, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    todo_list_id = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
+    todo_list_id = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=True)
 
     def to_json(self):
         return {
@@ -88,7 +91,8 @@ class Reminder(db.Model):
     description = db.Column(db.Text)
     due_date = db.Column(db.DateTime)
     source = db.Column(db.String(120))
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    creator = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    recipient = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     def to_json(self):
         return {
@@ -97,5 +101,6 @@ class Reminder(db.Model):
             "description": self.description,
             "due_date": self.due_date.isoformat() if self.due_date else None,
             "source": self.source,
-            "user_id": self.user_id,
+            "creator": self.created_by,
+            "recipient": self.recipient_id,
         }
