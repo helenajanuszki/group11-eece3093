@@ -15,7 +15,7 @@ def create_app(test_config=None):
     if test_config:
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
         app.config["TESTING"] = True
-        app.config["SECRET_KEY"] = "test-secret-key"
+        app.config["SECRET_KEY"] = "testsecretkey12345678901234567890"
     else:
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
         app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -25,4 +25,8 @@ def create_app(test_config=None):
 
     db.init_app(app)
     JWTManager(app)
+    
+    from routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
+
     return app

@@ -33,3 +33,5 @@ instance/
 
 # .env
 .env
+
+.coverage
