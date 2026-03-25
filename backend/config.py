@@ -27,6 +27,8 @@ def create_app(test_config=None):
     JWTManager(app)
     
     from routes.auth import auth_bp
+    from routes.journal import journal_bp
     app.register_blueprint(auth_bp)
+    app.register_blueprint(journal_bp)
 
     return app

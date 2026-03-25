@@ -1,5 +1,6 @@
-from models import User
+from models import Role
 
+#region Register
 def test_register_success(client):
     res = client.post("/auth/register", json={
         "username": "newstudent",
@@ -11,8 +12,30 @@ def test_register_success(client):
     data = res.get_json()
     assert data["email"] == "new@test.com"
     assert data["username"] == "newstudent"
-    assert data["role"] == "student"
+    assert data["role"] == Role.student.value
     assert "password" not in data
+
+def test_register_admin(client):
+    res = client.post("/auth/register", json={
+        "username": "newstudent",
+        "email": "new@test.com",
+        "password": "password123",
+        "role": "admin"
+    })
+
+    assert res.status_code == 201
+    data = res.get_json()
+    assert data["role"] == Role.admin.value
+
+def test_register_invalid_user(client):
+    res = client.post("/auth/register", json={
+        "username": "newstudent",
+        "email": "new@test.com",
+        "password": "password123",
+        "role": "captain"
+    })
+
+    assert res.status_code == 400
 
 def test_register_missing_email(client):
     res = client.post("/auth/register", json={
@@ -76,6 +99,7 @@ def test_register_no_body(client):
     res = client.post("/auth/register")
 
     assert res.status_code == 400
+#endregion
 
 #region Login
 def test_login_success(client, existing_user):
@@ -140,3 +164,4 @@ def test_login_returns_valid_token(client, existing_user):
     token = res.get_json().get("token")
     assert token is not None
     assert len(token) > 0
+#endregion
