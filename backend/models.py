@@ -31,14 +31,16 @@ class User(db.Model):
 
 class TodoList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    is_default = db.Column(db.Boolean, default=False, nullable=False)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    tasks = db.relationship("Task", backref="todo_list", lazy=True)
+    tasks = db.relationship("Task", backref="todo_list", lazy=True, cascade="all, delete-orphan")
 
     def to_json(self):
         return {
             "id": self.id,
+            "is_default": self.is_default,
             "name": self.name,
             "description": self.description,
             "user_id": self.user_id,
@@ -50,15 +52,20 @@ class TaskPriority(enum.Enum):
     medium = "medium"
     high = "high"
 
+class TaskStatus(enum.Enum):
+    incomplete = "incomplete"
+    in_progress = "in_progress"
+    complete = "complete"
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     due_date = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default="incomplete")
+    status = db.Column(db.String(20), default=TaskStatus.incomplete)
     priority = db.Column(db.Enum(TaskPriority), default=TaskPriority.low, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    todo_list_id = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=True)
+    todo_list_id = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)
 
     def to_json(self):
         return {
@@ -66,7 +73,7 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "due_date": self.due_date.isoformat() if self.due_date else None,
-            "status": self.status,
+            "status": self.status.value,
             "priority": self.priority.value,
             "user_id": self.user_id,
             "todo_list_id": self.todo_list_id,

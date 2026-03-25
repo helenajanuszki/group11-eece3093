@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import db
-from models import User, Role
+from models import User, Role, TodoList
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -31,8 +31,16 @@ def register():
         password=generate_password_hash(data["password"]),
         role=role
     )
-
     db.session.add(new_user)
+    db.session.commit()
+
+    default_list = TodoList(
+        is_default=True,
+        name="Tasks",
+        description="Default list for standalone tasks",
+        user_id=new_user.id
+    )
+    db.session.add(default_list)
     db.session.commit()
 
     return jsonify(new_user.to_json()), 201
