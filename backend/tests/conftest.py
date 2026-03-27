@@ -17,7 +17,7 @@ def client(app):
     return app.test_client()
 
 @pytest.fixture
-def existing_user():
+def existing_user(app):
     user = User(
         username="teststudent",
         email="student@test.com",
@@ -50,7 +50,7 @@ def existing_journal_entry(app, existing_user):
     return entry.id
 
 @pytest.fixture
-def other_user_entry():
+def other_user_entry(app):
     other = User(
         username="other",
         email="other@test.com",
@@ -70,3 +70,23 @@ def other_user_entry():
     test_db.session.commit()
     
     return entry.id
+
+@pytest.fixture
+def other_user_list(app, client):
+    client.post("/auth/register", json={
+        "username": "yetanotherstudent",
+        "email": "anotherstudent@test.com",
+        "password": "password123"
+    })
+
+    res = client.post("/auth/login", json={
+        "email": "anotherstudent@test.com",
+        "password": "password123"
+    })
+    token = {"Authorization": f"Bearer {res.get_json()['token']}"}
+
+    post_res = client.post("/lists", json={
+        "name": "Test",
+        "description": "testing"
+    }, headers=token)
+    return {"id": post_res.get_json()["id"], "token": token}

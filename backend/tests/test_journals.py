@@ -1,8 +1,3 @@
-from models import JournalEntry, User, Role
-from datetime import date
-from conftest import test_db
-from werkzeug.security import generate_password_hash
-
 #region Creation
 def test_journal_creation_success(client, student_token):
     res = client.post("/journal", json={

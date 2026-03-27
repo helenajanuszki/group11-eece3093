@@ -44,6 +44,15 @@ class TodoList(db.Model):
             "name": self.name,
             "description": self.description,
             "user_id": self.user_id,
+        }
+    
+    def to_json_with_tasks(self):
+        return {
+            "id": self.id,
+            "is_default": self.is_default,
+            "name": self.name,
+            "description": self.description,
+            "user_id": self.user_id,
             "tasks": [task.to_json() for task in self.tasks],
         }
 
