@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from config import db
-from models import TodoList, Task, User
+from models import TodoList, Task, User, TaskPriority, TaskStatus
+from datetime import datetime
 
 todo_bp = Blueprint("lists", __name__)
 
+#region Todo List
 @todo_bp.route("/lists", methods=["POST"])
 @jwt_required()
 def create_list():
@@ -96,3 +98,186 @@ def delete_list(id):
     db.session.commit()
 
     return "", 204
+#endregion
+
+#region Tasks
+@todo_bp.route("/lists/<int:list_id>/tasks", methods=["POST"])
+@jwt_required()
+def create_task(list_id):
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"ERROR": "No data provided"}), 400
+    
+    user_id = get_jwt_identity()
+
+    todo_list = db.session.get(TodoList, list_id)
+    if not todo_list:
+        return jsonify({"ERROR": "Todo list not found"}), 404
+    
+    if user_id != str(todo_list.user_id):
+        return jsonify({"ERROR": "Forbidden"}), 403
+    
+    if not data.get("title"):
+        return jsonify({"ERROR": "Task must have a title"}), 400
+    
+    due = None
+    if data.get("due_date") is not None:
+        try:
+            due = datetime.fromisoformat(data.get("due_date"))
+            due = due.replace(second=0, microsecond=0)
+        except ValueError:
+            return jsonify({"ERROR": "Invalid date format, use YYYY-MM-DDTHH:MM"}), 400
+    
+    priority = data.get("priority")
+    if priority:
+        try:
+            priority = TaskPriority(priority)
+        except ValueError:
+            return jsonify({"ERROR": "Invalid priority"}), 400
+    else:
+        priority = TaskPriority.low
+    
+    new_task = Task(
+        title = data.get("title"),
+        description = data.get("description"),
+        due_date = due,
+        status = TaskStatus.incomplete,
+        priority = priority,
+        user_id = user_id,
+        todo_list_id = list_id
+    )
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify(new_task.to_json()), 201
+    
+@todo_bp.route("/lists/<int:list_id>/tasks/<int:task_id>", methods=["GET"])
+@jwt_required()
+def get_task(list_id, task_id):
+    user_id = get_jwt_identity()
+
+    todo_list = db.session.get(TodoList, list_id)
+    if not todo_list:
+        return jsonify({"ERROR": "Todo list not found"}), 404
+    
+    if user_id != str(todo_list.user_id):
+        return jsonify({"ERROR": "Forbidden"}), 403
+    
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({"ERROR": "Task not found"}), 404
+    if task.todo_list_id != list_id:
+        return jsonify({"ERROR": "Task does not belong to list"}), 400
+
+    return jsonify(task.to_json()), 200
+
+@todo_bp.route("/lists/<int:list_id>/tasks/<int:task_id>", methods=["PUT"])
+@jwt_required()
+def edit_task(list_id, task_id):
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"ERROR": "No data provided"}), 400
+    
+    user_id = get_jwt_identity()
+
+    todo_list = db.session.get(TodoList, list_id)
+    if not todo_list:
+        return jsonify({"ERROR": "Todo list not found"}), 404
+    
+    if user_id != str(todo_list.user_id):
+        return jsonify({"ERROR": "Forbidden"}), 403
+    
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({"ERROR": "Task not found"}), 404
+    if task.todo_list_id != list_id:
+        return jsonify({"ERROR": "Task does not belong to list"}), 400
+
+    if data.get("title") is not None:
+        task.title = data["title"]
+
+    if data.get("description") is not None:
+        task.description = data["description"]
+
+    if data.get("due_date") is not None:
+        try:
+            due = datetime.fromisoformat(data.get("due_date"))
+            due = due.replace(second=0, microsecond=0)
+        except ValueError:
+            return jsonify({"ERROR": "Invalid date format, use YYYY-MM-DDTHH:MM"}), 400
+        else:
+            if due != task.due_date:
+                task.due_date = due
+    
+    priority = data.get("priority")
+    if priority:
+        try:
+            priority = TaskPriority(priority)
+        except ValueError:
+            return jsonify({"ERROR": "Invalid priority"}), 400
+        else:
+            task.priority = priority
+    
+    todo_list_id = data.get("todo_list_id")
+    if todo_list_id:
+        todo_list = db.session.get(TodoList, todo_list_id)
+        if not todo_list:
+            return jsonify({"ERROR": "Todo list not found"}), 404
+
+        if user_id != str(todo_list.user_id):
+            return jsonify({"ERROR": "Forbidden"}), 403 
+        
+        task.todo_list_id = todo_list_id
+
+    db.session.commit()
+
+    return jsonify(task.to_json()), 200
+
+@todo_bp.route("/lists/<int:list_id>/tasks/<int:task_id>", methods=["DELETE"])
+@jwt_required()
+def delete_task(list_id, task_id):
+    user_id = get_jwt_identity()
+
+    todo_list = db.session.get(TodoList, list_id)
+    if not todo_list:
+        return jsonify({"ERROR": "Todo list not found"}), 404
+    
+    if user_id != str(todo_list.user_id):
+        return jsonify({"ERROR": "Forbidden"}), 403
+    
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({"ERROR": "Task not found"}), 404
+    if task.todo_list_id != list_id:
+        return jsonify({"ERROR": "Task does not belong to list"}), 400
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return "", 204
+
+@todo_bp.route("/lists/<int:list_id>/tasks/<int:task_id>/complete", methods=["PUT"])
+@jwt_required()
+def task_complete(list_id, task_id):
+    user_id = get_jwt_identity()
+
+    todo_list = db.session.get(TodoList, list_id)
+    if not todo_list:
+        return jsonify({"ERROR": "Todo list not found"}), 404
+    
+    if user_id != str(todo_list.user_id):
+        return jsonify({"ERROR": "Forbidden"}), 403
+    
+    task = db.session.get(Task, task_id)
+    if not task:
+        return jsonify({"ERROR": "Task not found"}), 404
+    if task.todo_list_id != list_id:
+        return jsonify({"ERROR": "Task does not belong to list"}), 400
+
+    task.status = TaskStatus.complete
+
+    db.session.commit()
+
+    return jsonify(task.to_json()), 200
+#endregion

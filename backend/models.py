@@ -71,7 +71,7 @@ class Task(db.Model):
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     due_date = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default=TaskStatus.incomplete)
+    status = db.Column(db.Enum(TaskStatus), default=TaskStatus.incomplete, nullable=False)
     priority = db.Column(db.Enum(TaskPriority), default=TaskPriority.low, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     todo_list_id = db.Column(db.Integer, db.ForeignKey("todo_list.id"), nullable=False)

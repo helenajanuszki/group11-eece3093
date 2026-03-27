@@ -1,6 +1,6 @@
 import pytest
 from config import create_app, db as test_db
-from models import User, Role, JournalEntry
+from models import User, Role, JournalEntry, TaskPriority
 from werkzeug.security import generate_password_hash
 from datetime import date
 
@@ -90,3 +90,18 @@ def other_user_list(app, client):
         "description": "testing"
     }, headers=token)
     return {"id": post_res.get_json()["id"], "token": token}
+
+@pytest.fixture
+def other_user_task(app, client, other_user_list):
+    res = client.post(f"/lists/{other_user_list['id']}/tasks", json = {
+        "title": "Test",
+        "description": "Testing",
+        "due_date": "2000-01-01T11:59",
+        "priority": TaskPriority.medium.value,
+    }, headers=other_user_list["token"])
+
+    return {
+        "id": res.get_json()["id"],
+        "list_id": other_user_list["id"],
+        "token": other_user_list["token"]
+    }
