@@ -113,10 +113,8 @@ class Reminder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
-    due_date = db.Column(db.DateTime)
-    source = db.Column(db.String(120))
+    due_date = db.Column(db.DateTime, nullable=False)
     creator = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    recipient = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     creator_user = db.relationship("User", foreign_keys=[creator])
     recipients = db.relationship("User", secondary=reminder_recipients, lazy=True)
 
@@ -126,7 +124,6 @@ class Reminder(db.Model):
             "title": self.title,
             "description": self.description,
             "due_date": self.due_date.isoformat() if self.due_date else None,
-            "source": self.source,
             "creator": self.creator,
             "recipients": [user.id for user in self.recipients],
         }
