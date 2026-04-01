@@ -53,7 +53,7 @@ def create_reminder():
     recipients_ids = data.get("recipients", [])
     if not isinstance(recipients_ids, list):    
         return jsonify({"ERROR": "Recipients must be a list"}), 400
-    recipient_users = User.query.filter(User.id.in_(recipients_ids)).all()
+    recipient_users = User.query.filter(User.id.in_(recipients_ids), User.admin_id == user_id).all()
 
     new_reminder = Reminder(
         title = title,

@@ -30,9 +30,11 @@ def create_app(test_config=None):
     from routes.journal import journal_bp
     from routes.lists import todo_bp
     from routes.reminders import reminder_bp
+    from routes.admin import admin_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(journal_bp)
     app.register_blueprint(todo_bp)
     app.register_blueprint(reminder_bp)
+    app.register_blueprint(admin_bp)
 
     return app

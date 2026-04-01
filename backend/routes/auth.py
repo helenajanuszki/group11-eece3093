@@ -23,13 +23,21 @@ def register():
             return jsonify({"ERROR": "Invalid role"}), 400
     else:
         role = Role.student
+    
+    admin_id = None
+    if role == Role.student and data.get("admin_id"):
+        admin = db.session.get(User, data.get("admin_id"))
+        if not admin or not admin.is_admin():
+            return jsonify({"ERROR": "Invalid admin"}), 400
+        admin_id = data.get("admin_id")
 
     new_user = User(
         username=data["username"],
         email=data["email"],
         phone_number=data.get("phone_number"),
         password=generate_password_hash(data["password"]),
-        role=role
+        role=role,
+        admin_id = admin_id
     )
     db.session.add(new_user)
     db.session.commit()
