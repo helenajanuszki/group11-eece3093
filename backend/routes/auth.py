@@ -24,23 +24,15 @@ def register():
     else:
         role = Role.student
     
-    admin_id = None
-    if role == Role.student and data.get("admin_id"):
-        admin = db.session.get(User, data.get("admin_id"))
-        if not admin or not admin.is_admin():
-            return jsonify({"ERROR": "Invalid admin"}), 400
-        admin_id = data.get("admin_id")
-
     new_user = User(
         username=data["username"],
         email=data["email"],
         phone_number=data.get("phone_number"),
         password=generate_password_hash(data["password"]),
-        role=role,
-        admin_id = admin_id
+        role=role
     )
     db.session.add(new_user)
-    db.session.commit()
+    db.session.flush()
 
     default_list = TodoList(
         is_default=True,
@@ -66,8 +58,3 @@ def login():
     # Ids are used for tokens, so get_jwt_identity() gives the current user's id
     token = create_access_token(identity=str(user.id))
     return jsonify({"token": token, "user": user.to_json()}), 200
-
-@auth_bp.route("/auth/logout", methods=["POST"])
-@jwt_required()
-def logout():
-    return jsonify({"message": "Logged out successfully"}), 200

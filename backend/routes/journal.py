@@ -13,13 +13,13 @@ def create_journal_entry():
     if not data:
         return jsonify({"ERROR": "No data provided"}), 400
     
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = db.session.get(User, user_id)
     if not user:
         return jsonify({"ERROR": "User not found"}), 404
     
     mood = data.get("mood")
-    if mood is None or mood < 1 or mood > 5:
+    if not isinstance(mood, int) or mood < 1 or mood > 5:
         return jsonify({"ERROR": "Invalid mood value"}), 400
     
     try:
@@ -42,20 +42,20 @@ def create_journal_entry():
 @journal_bp.route("/journal", methods=["GET"])
 @jwt_required()
 def get_all():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     entries = JournalEntry.query.filter_by(user_id=user_id).all()
     return jsonify([entry.to_json() for entry in entries]), 200
 
 @journal_bp.route("/journal/<int:id>", methods=["GET"])
 @jwt_required()
 def get_entry(id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     entry = db.session.get(JournalEntry, id)
 
     if not entry:
         return jsonify({"ERROR": "Journal entry not found"}), 404
     
-    if str(entry.user_id) != user_id:
+    if entry.user_id != user_id:
         return jsonify({"ERROR": "Forbidden"}), 403
     
     return jsonify(entry.to_json()), 200
@@ -71,8 +71,8 @@ def edit_journal_entry(id):
     if not entry:
         return jsonify({"ERROR": "Journal entry not found"}), 404
     
-    user_id = get_jwt_identity()
-    if user_id != str(entry.user_id):
+    user_id = int(get_jwt_identity())
+    if user_id != entry.user_id:
         return jsonify({"ERROR": "Forbidden"}), 403
 
     if data.get("mood") is not None:
@@ -95,8 +95,8 @@ def delete_journal_entry(id):
     if not entry:
         return jsonify({"ERROR": "Journal entry not found"}), 404
     
-    user_id = get_jwt_identity()
-    if user_id != str(entry.user_id):
+    user_id = int(get_jwt_identity())
+    if user_id != entry.user_id:
         return jsonify({"ERROR": "Forbidden"}), 403
     
     db.session.delete(entry)

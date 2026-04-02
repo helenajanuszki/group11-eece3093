@@ -6,6 +6,12 @@ class Role(enum.Enum):
     student = "student"
     admin = "admin"
 
+admin_students = db.Table("admin_students",
+    db.Column("admin_id", db.Integer, db.ForeignKey("user.id"), nullable=False),
+    db.Column("student_id", db.Integer, db.ForeignKey("user.id"), nullable=False),
+    db.Column("list_id", db.Integer, db.ForeignKey("todo_list.id"), nullable=True)
+)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=False, nullable=False)
@@ -13,8 +19,13 @@ class User(db.Model):
     phone_number = db.Column(db.String(20), unique=True, nullable=True)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.Enum(Role), nullable=False, default=Role.student)
-    admin_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    students = db.relationship("User", backref=db.backref("admin", remote_side="User.id"), lazy=True)
+    students = db.relationship(
+        "User",
+        secondary=admin_students,
+        primaryjoin="User.id == admin_students.c.admin_id",
+        secondaryjoin="User.id == admin_students.c.student_id",
+        lazy=True
+    )
     lists = db.relationship("TodoList", backref="user", lazy=True)
     tasks = db.relationship("Task", backref="user", lazy=True)
     journals = db.relationship("JournalEntry", backref="user", lazy=True)
@@ -26,7 +37,6 @@ class User(db.Model):
             "email": self.email,
             "phone_number": self.phone_number,
             "role": self.role.value,
-            "admin_id": self.admin_id,
         }
     
     def is_admin(self):
