@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import apiCall from "../api/client"
-import "../styles/auth.css"
+import apiCall from "./api/client"
+import "./styles/auth.css"
 
 const SHARK = "/shark.png"
 const BG = "/bg.png"
