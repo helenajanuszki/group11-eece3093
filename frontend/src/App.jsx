@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import LoginPage from "./pages/LoginPage"
-import RegisterPage from "./pages/RegisterPage"
+import LoginPage from "./LogIn"
+import RegisterPage from "./Register"
 
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("token")
