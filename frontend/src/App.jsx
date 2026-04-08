@@ -1,27 +1,30 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import ContactList from './ContactList'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import LoginPage from "./LogIn"
+import RegisterPage from "./Register"
+
+function ProtectedRoute({ children }) {
+    const token = localStorage.getItem("token")
+    if (!token) return <Navigate to="/login" />
+    return children
+}
 
 function App() {
-  const [contacts, setContacts] = useState([])
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-  const fetchContacts = async () => {
-    const response = await fetch("http://127.0.0.1:5000/contacts")
-    const data = await response.json()
-    setContacts(data.contacts)
-    console.log(data.contacts)
-  }
+                <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                        <div>Dashboard</div>
+                    </ProtectedRoute>
+                } />
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchContacts()
-  }, [])
-
-  return (
-    <>
-      <ContactList contacts={contacts}/>
-    </>
-  )
+                <Route path="/" element={<Navigate to="/login" />} />
+            </Routes>
+        </BrowserRouter>
+    )
 }
 
 export default App
