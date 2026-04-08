@@ -9,7 +9,6 @@
  *   const res = await apiCall("/journal", { method: "POST", body: JSON.stringify(data) })
  */
 
-const BASE_URL = "/api"
 const apiCall = async (url, options = {}) => {
     const token = localStorage.getItem("token")
 
