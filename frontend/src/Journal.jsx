@@ -1,7 +1,6 @@
 import { useState } from "react"
 import "./styles/moodEntries.css"
 
-const SHARK = "/shark.png"
 const BG = "/bg.png"
 
 // const sampleEntries = [
@@ -80,7 +79,7 @@ function MoodEntriesPage() {
                         <table className="mood-table">
                             <thead>
                                 <tr>
-                                    <th>date ˅</th>
+                                    <th>date</th>
                                     <th>mood</th>
                                 </tr>
                             </thead>

@@ -9,5 +9,5 @@
 html, body, #root {
     height: 100%;
     width: 100%;
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Press Start 2P', monospace;
 }
