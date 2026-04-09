@@ -77,6 +77,7 @@ function MoodEntriesPage() {
         const month = String(entryDate.getMonth() + 1).padStart(2, "0")
         const year = String(entryDate.getFullYear())
 
+        setSelectedDay(day)
         setSelectedMonth(month)
         setSelectedYear(year)
         setSelectedMood(entry.mood)
