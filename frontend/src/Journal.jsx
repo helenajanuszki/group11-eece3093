@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import "./styles/moodEntries.css"
+import apiCall from "./api/client"
 
 const BG = "/bg.png"
 
@@ -12,18 +13,86 @@ const BG = "/bg.png"
 function MoodEntriesPage() {
     const [entries, setEntries] = useState([])
     const [showModal, setShowModal] = useState(false)
+    const [selectedDay, setSelectedDay] = useState("")
     const [selectedMonth, setSelectedMonth] = useState("")
     const [selectedYear, setSelectedYear] = useState("")
     const [selectedMood, setSelectedMood] = useState("")
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [editingEntryId, setEditingEntryId] = useState(null)
 
-    const moods = [":D", ":)", ":|", ":(", "D:"]
+    const moods = [
+        { label: ":D", value: 5 },
+        { label: ":)", value: 4 },
+        { label: ":|", value: 3 },
+        { label: ":(", value: 2 },
+        { label: "D:", value: 1 }
+    ]
 
-    const handleAddEntry = () => {
+    useEffect(() => {
+        fetchEntries()
+    }, [])
+
+    const fetchEntries = async () => {
+        try {
+            const res = await apiCall("/journal", {
+                method: "GET"
+            })
+            
+            const text = await res.text()
+            const data = text ? JSON.parse(text) : {}
+
+            if (!res.ok) {
+                setError(data.ERROR || "Failed to load entries")
+                return
+            }
+
+            setEntries(data)
+        } catch (err) {
+            console.error(err)
+            setError("Something went wrong while loading entries")
+        }
+    }
+    
+    const resetModal = () => {
+        setSelectedDay("")
+        setSelectedMonth("")
+        setSelectedYear("")
+        setSelectedMood("")
+        setEditingEntryId(null)
+        setError("")
+    }
+
+    const openCreateModal = () => {
+        resetModal()
+        setShowModal(true)
+    }
+
+    const openEditModal = (entry) => {
+        setError("")
+        setEditingEntryId(entry.id)
+
+        const entryDate = new Date(entry.entry_date)
+        const day = String(entryDate.getDay()).padStart(2, "0")
+        const month = String(entryDate.getMonth() + 1).padStart(2, "0")
+        const year = String(entryDate.getFullYear())
+
+        setSelectedMonth(month)
+        setSelectedYear(year)
+        setSelectedMood(entry.mood)
+        setShowModal(true)
+    }
+
+    const getMoodLabel = (value) => {
+        const match = moods.find((option) => option.value === value)
+        return match ? match.label : value
+    }
+
+    const handleSaveEntry = async () => {
         setError("")
 
-        if (!selectedMonth || !selectedYear) {
-            setError("Please choose a month and year")
+        if (!selectedDay ||!selectedMonth || !selectedYear) {
+            setError("Please choose a day, month and year")
             return
         }
 
@@ -32,47 +101,69 @@ function MoodEntriesPage() {
             return
         }
 
-        const formattedDate = `${selectedMonth}/01/${selectedYear}`
+        const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`
 
-        const newEntry = {
-            id: Date.now(),
-            date: formattedDate,
-            mood: selectedMood
+        setLoading(true)
+
+        try {
+            let res
+            if (editingEntryId) {
+                res = await apiCall(`/journal/${editingEntryId}`, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        date: formattedDate,
+                        mood: selectedMood,
+                        content: ""
+                    })
+                })
+            } else {
+                res = await apiCall("/journal", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        date: formattedDate,
+                        mood: selectedMood,
+                        content: ""
+                    })
+                })
+            }
+
+            const text = await res.text()
+            const data = text ? JSON.parse(text) : {}
+
+            console.log("status:", res.status)
+            console.log("response:", data)
+
+            if (!res.ok) {
+                setError(data.ERROR || "Failed to save entry")
+                return
+            }
+
+            await fetchEntries()
+            setShowModal(false)
+            resetModal()
+        } catch (err) {
+            console.error("save entry error:", err)
+            setError("Something went wrong, please try again")
+        } finally {
+            setLoading(false)
         }
-
-        setEntries([newEntry, ...entries])
-        setSelectedMonth("")
-        setSelectedYear("")
-        setSelectedMood("")
-        setShowModal(false)
     }
 
     return (
-        <div
-            className="mood-page"
-            style={{ backgroundImage: `url(${BG})` }}
-        >
+        <div className="mood-page" style={{ backgroundImage: `url(${BG})` }}        >
             <div className="mood-shell">
                 <div className="mood-header-top">Journal</div>
-
                 <div className="mood-card">
                     <div className="mood-toolbar">
                         <div className="mood-title-wrap">
                             <h1 className="mood-title">mood entries</h1>
                             <button
                                 className="mood-add-btn"
-                                onClick={() => setShowModal(true)}
+                                onClick={openCreateModal}
                             >
                                 +
                             </button>
                         </div>
-
-                        {/* <div className="mood-toolbar-right">
-                            <button className="mood-menu-btn">☰</button>
-                            <div className="mood-profile">
-                                <img src={SHARK} alt="profile" className="mood-profile-img" />
-                            </div>
-                        </div> */}
                     </div>
 
                     <div className="mood-table-wrap">
@@ -90,8 +181,11 @@ function MoodEntriesPage() {
                                             <td>{entry.date}</td>
                                             <td>
                                                 <div className="mood-cell">
-                                                    <span>{entry.mood}</span>
-                                                    <button className="mood-edit-btn">
+                                                    <span>{getMoodLabel(entry.mood)}</span>
+                                                    <button 
+                                                        className="mood-edit-btn"
+                                                        onClick={() => openEditModal(entry)}
+                                                    >
                                                         edit
                                                     </button>
                                                 </div>
@@ -114,10 +208,32 @@ function MoodEntriesPage() {
                             <div className="mood-modal">
                                 <button
                                     className="mood-close-btn"
-                                    onClick={() => setShowModal(false)}
+                                    onClick={() => {
+                                        setShowModal(false)
+                                        resetModal()
+                                    }}
                                 >
                                     ×
                                 </button>
+
+                                <div className="mood-modal-field">
+                                    <label>choose day:</label>
+                                    <select
+                                        value={selectedDay}
+                                        onChange={(e) => setSelectedDay(e.target.value)}
+                                        className="mood-select"
+                                    >
+                                        <option value="">dd</option>
+                                        {Array.from({ length: 31 }, (_, i) => {
+                                            const d = String(i + 1).padStart(2, "0")
+                                            return (
+                                                <option key={d} value={d}>
+                                                    {d}
+                                                </option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
 
                                 <div className="mood-modal-field">
                                     <label>choose month:</label>
@@ -127,18 +243,14 @@ function MoodEntriesPage() {
                                         className="mood-select"
                                     >
                                         <option value="">mm</option>
-                                        <option value="01">01</option>
-                                        <option value="02">02</option>
-                                        <option value="03">03</option>
-                                        <option value="04">04</option>
-                                        <option value="05">05</option>
-                                        <option value="06">06</option>
-                                        <option value="07">07</option>
-                                        <option value="08">08</option>
-                                        <option value="09">09</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const m = String(i + 1).padStart(2, "0")
+                                            return (
+                                                <option key={m} value={m}>
+                                                    {m}
+                                                </option>
+                                            )
+                                        })}
                                     </select>
                                 </div>
 
@@ -150,9 +262,11 @@ function MoodEntriesPage() {
                                         className="mood-select"
                                     >
                                         <option value="">yyyy</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025">2025</option>
-                                        <option value="2026">2026</option>
+                                            {[2026, 2027, 2028].map((y) => (
+                                                <option key={y} value={y}>
+                                                    {y}
+                                                </option>
+                                            ))}
                                     </select>
                                 </div>
 
@@ -161,14 +275,14 @@ function MoodEntriesPage() {
                                     <div className="mood-options">
                                         {moods.map((mood) => (
                                             <button
-                                                key={mood}
+                                                key={mood.value}
                                                 type="button"
                                                 className={`mood-option-btn ${
-                                                    selectedMood === mood ? "selected" : ""
+                                                    selectedMood === mood.value ? "selected" : ""
                                                 }`}
-                                                onClick={() => setSelectedMood(mood)}
+                                                onClick={() => setSelectedMood(mood.value)}
                                             >
-                                                {mood}
+                                                {mood.label}
                                             </button>
                                         ))}
                                     </div>
@@ -178,9 +292,14 @@ function MoodEntriesPage() {
 
                                 <button
                                     className="mood-save-btn"
-                                    onClick={handleAddEntry}
+                                    onClick={handleSaveEntry}
+                                    disabled={loading}
                                 >
-                                    save entry
+                                    {loading 
+                                        ? "..."
+                                        : editingEntryId
+                                        ? "update entry"
+                                        : "save entry"}
                                 </button>
                             </div>
                         </div>
