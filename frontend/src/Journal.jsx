@@ -4,14 +4,14 @@ import "./styles/moodEntries.css"
 const SHARK = "/shark.png"
 const BG = "/bg.png"
 
-const sampleEntries = [
-    { id: 1, date: "01/11", mood: ":D" },
-    { id: 2, date: "01/12", mood: ":)" },
-    { id: 3, date: "01/13", mood: ":|" }
-]
+// const sampleEntries = [
+//     { id: 1, date: "01/11", mood: ":D" },
+//     { id: 2, date: "01/12", mood: ":)" },
+//     { id: 3, date: "01/13", mood: ":|" }
+// ]
 
 function MoodEntriesPage() {
-    const [entries, setEntries] = useState(sampleEntries)
+    const [entries, setEntries] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [selectedMonth, setSelectedMonth] = useState("")
     const [selectedYear, setSelectedYear] = useState("")
