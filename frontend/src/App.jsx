@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import LoginPage from "./LogIn"
 import RegisterPage from "./Register"
+import MoodEntriesPage from "./Journal"
 
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem("token")
@@ -20,6 +21,8 @@ function App() {
                         <div>Dashboard</div>
                     </ProtectedRoute>
                 } />
+
+                <Route path="/moods" element={<MoodEntriesPage />} />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Routes>
