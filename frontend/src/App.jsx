@@ -22,7 +22,7 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                <Route path="/moods" element={<MoodEntriesPage />} />
+                <Route path="/journal" element={<MoodEntriesPage />} />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Routes>

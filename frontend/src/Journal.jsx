@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import "./styles/moodEntries.css"
 import apiCall from "./api/client"
+import { FaTrashAlt, FaEdit } from "react-icons/fa";
 
 const BG = "/bg.png"
 
@@ -20,6 +21,9 @@ function MoodEntriesPage() {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [editingEntryId, setEditingEntryId] = useState(null)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [entryToDelete, setEntryToDelete] = useState(null)    
+    
 
     const moods = [
         { label: ":D", value: 5 },
@@ -87,6 +91,38 @@ function MoodEntriesPage() {
     const getMoodLabel = (value) => {
         const match = moods.find((option) => option.value === value)
         return match ? match.label : value
+    }
+
+    const handleDeleteEntry = (id) => {
+        setEntryToDelete(id)
+        setShowDeleteModal(true)
+    }   
+
+    const confirmDelete = async () => {
+        try {
+            const res = await apiCall(`/journal/${entryToDelete}`, {
+                method: "DELETE"
+            })
+
+            if (!res.ok) {
+                const text = await res.text()
+                const data = text ? JSON.parse(text) : {}
+                setError(data.ERROR || "Failed to delete entry")
+                return
+            }
+
+            await fetchEntries()
+            setShowDeleteModal(false)
+            setEntryToDelete(null)
+        } catch (err) {
+            console.error("delete error:", err)
+            setError("Something went wrong while deleting")
+        }
+    }
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false)
+        setEntryToDelete(null)
     }
 
     const handleSaveEntry = async () => {
@@ -183,12 +219,47 @@ function MoodEntriesPage() {
                                             <td>
                                                 <div className="mood-cell">
                                                     <span>{getMoodLabel(entry.mood)}</span>
-                                                    <button 
-                                                        className="mood-edit-btn"
-                                                        onClick={() => openEditModal(entry)}
-                                                    >
-                                                        edit
-                                                    </button>
+                                                    <div className="mood-cell">
+                                                        <button 
+                                                            className="mood-edit-btn"
+                                                            onClick={() => openEditModal(entry)}
+                                                        >
+                                                            <FaEdit />
+                                                        </button>
+                                                        <button 
+                                                            className="mood-delete-btn"
+                                                            onClick={() => handleDeleteEntry(entry.id)}
+                                                        >
+                                                            <FaTrashAlt />
+                                                        </button>
+                                                        {showDeleteModal && (
+                                                            <div className="mood-modal-overlay">
+                                                                <div className="mood-modal">
+                                                                    <h2 className="mood-delete-title">delete entry?</h2>
+
+                                                                    <p className="mood-delete-text">
+                                                                        are you sure you want to delete this entry?
+                                                                    </p>
+
+                                                                    <div className="mood-delete-actions">
+                                                                        <button
+                                                                            className="mood-delete-confirm"
+                                                                            onClick={confirmDelete}
+                                                                        >
+                                                                            confirm
+                                                                        </button>
+
+                                                                        <button
+                                                                            className="mood-delete-cancel"
+                                                                            onClick={cancelDelete}
+                                                                        >
+                                                                            cancel
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+)}
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>

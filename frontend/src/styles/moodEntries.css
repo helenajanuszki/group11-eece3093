@@ -136,7 +136,6 @@
 .mood-cell {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
 }
 
@@ -147,7 +146,22 @@
     border-radius: 6px;
     color: #d0eeff;
     font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.mood-edit-btn:hover {
+    opacity: 0.92;
+}
+
+.mood-delete-btn {
+    padding: 8px 10px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 1px solid rgba(100, 200, 255, 0.45);
+    border-radius: 6px;
+    color: #d0eeff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 15px;
     cursor: pointer;
 }
 
@@ -246,6 +260,59 @@
 .mood-option-btn.selected {
     background: #385985;
     color: white;
+}
+
+.mood-delete-title {
+    color: #d0eeff;
+    font-size: 15px;
+    text-align: center;
+}
+
+.mood-delete-text {
+    color: #d0eeff;
+    font-size: 7px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.mood-delete-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.mood-delete-confirm {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 80, 80, 0.2);
+    border: 2px solid rgba(255, 100, 100, 0.55);
+    border-radius: 8px;
+    color: #ffbbbb;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    cursor: pointer;
+}
+
+.mood-delete-confirm:hover {
+    background: rgba(255, 80, 80, 0.35);
+    box-shadow: 0 0 16px rgba(255, 80, 80, 0.4);
+}
+
+.mood-delete-cancel {
+    flex: 1;
+    padding: 10px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 2px solid rgba(100, 200, 255, 0.55);
+    border-radius: 8px;
+    color: #d0eeff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    cursor: pointer;
+}
+
+.mood-delete-cancel:hover {
+    background: rgba(80, 180, 255, 0.35);
+    box-shadow: 0 0 16px rgba(100, 200, 255, 0.3);
 }
 
 .mood-error {
