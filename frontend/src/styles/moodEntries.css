@@ -346,6 +346,55 @@
     opacity: 0.95;
 }
 
+.mood-textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 110px;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid rgba(100, 200, 255, 0.35);
+    background: rgba(10, 40, 80, 0.45);
+    color: #d0eeff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    line-height: 1.6;
+}
+
+.mood-view-btn {
+    padding: 8px 10px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 1px solid rgba(100, 200, 255, 0.45);
+    border-radius: 6px;
+    color: #d0eeff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.mood-readonly {
+    background: rgba(180, 220, 255, 0.12);
+    border: 1px solid rgba(100, 200, 255, 0.35);
+    border-radius: 8px;
+    padding: 10px;
+    color: #e0f4ff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    line-height: 1.6;
+}
+
+.mood-readonly-content {
+    min-height: 120px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mood-content-preview {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 @media (max-width: 768px) {
     .mood-title {
         font-size: 2rem;
