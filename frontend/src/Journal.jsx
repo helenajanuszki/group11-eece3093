@@ -1,29 +1,27 @@
 import { useState, useEffect } from "react"
 import "./styles/moodEntries.css"
 import apiCall from "./api/client"
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaEye } from "react-icons/fa"
 
 const BG = "/bg.png"
 
-// const sampleEntries = [
-//     { id: 1, date: "01/11", mood: ":D" },
-//     { id: 2, date: "01/12", mood: ":)" },
-//     { id: 3, date: "01/13", mood: ":|" }
-// ]
-
 function MoodEntriesPage() {
     const [entries, setEntries] = useState([])
-    const [showModal, setShowModal] = useState(false)
+    const [showFormModal, setShowFormModal] = useState(false)
+    const [showViewModal, setShowViewModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+
     const [selectedDay, setSelectedDay] = useState("")
     const [selectedMonth, setSelectedMonth] = useState("")
     const [selectedYear, setSelectedYear] = useState("")
     const [selectedMood, setSelectedMood] = useState("")
+    const [selectedContent, setSelectedContent] = useState("")
+
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [editingEntryId, setEditingEntryId] = useState(null)
-    const [showDeleteModal, setShowDeleteModal] = useState(false)
-    const [entryToDelete, setEntryToDelete] = useState(null)    
-    
+    const [entryToDelete, setEntryToDelete] = useState(null)
+    const [viewingEntry, setViewingEntry] = useState(null)
 
     const moods = [
         { label: ":D", value: 5 },
@@ -42,7 +40,7 @@ function MoodEntriesPage() {
             const res = await apiCall("/journal", {
                 method: "GET"
             })
-            
+
             const text = await res.text()
             const data = text ? JSON.parse(text) : {}
 
@@ -51,52 +49,73 @@ function MoodEntriesPage() {
                 return
             }
 
-            setEntries(data)
+            setEntries(Array.isArray(data) ? data : [])
         } catch (err) {
             console.error(err)
             setError("Something went wrong while loading entries")
         }
     }
-    
-    const resetModal = () => {
+
+    const resetForm = () => {
         setSelectedDay("")
         setSelectedMonth("")
         setSelectedYear("")
         setSelectedMood("")
+        setSelectedContent("")
         setEditingEntryId(null)
         setError("")
     }
 
+    const closeFormModal = () => {
+        setShowFormModal(false)
+        resetForm()
+    }
+
+    const closeViewModal = () => {
+        setShowViewModal(false)
+        setViewingEntry(null)
+    }
+
     const openCreateModal = () => {
-        resetModal()
-        setShowModal(true)
+        resetForm()
+        setShowFormModal(true)
     }
 
     const openEditModal = (entry) => {
         setError("")
         setEditingEntryId(entry.id)
 
-        const entryDate = new Date(entry.entry_date)
-        const day = String(entryDate.getDay()).padStart(2, "0")
+        const rawDate = entry.entry_date || entry.date
+        const entryDate = new Date(rawDate)
+
+        const day = String(entryDate.getDate()).padStart(2, "0")
         const month = String(entryDate.getMonth() + 1).padStart(2, "0")
         const year = String(entryDate.getFullYear())
 
         setSelectedDay(day)
         setSelectedMonth(month)
         setSelectedYear(year)
-        setSelectedMood(entry.mood)
-        setShowModal(true)
+        setSelectedMood(Number(entry.mood))
+        setSelectedContent(entry.content || "")
+        setShowFormModal(true)
+    }
+
+    const openViewModal = (entry) => {
+        setViewingEntry(entry)
+        setShowViewModal(true)
     }
 
     const getMoodLabel = (value) => {
-        const match = moods.find((option) => option.value === value)
+        const numericValue = Number(value)
+        const match = moods.find((option) => option.value === numericValue)
         return match ? match.label : value
     }
 
     const handleDeleteEntry = (id) => {
         setEntryToDelete(id)
         setShowDeleteModal(true)
-    }   
+        setError("")
+    }
 
     const confirmDelete = async () => {
         try {
@@ -128,7 +147,7 @@ function MoodEntriesPage() {
     const handleSaveEntry = async () => {
         setError("")
 
-        if (!selectedDay ||!selectedMonth || !selectedYear) {
+        if (!selectedDay || !selectedMonth || !selectedYear) {
             setError("Please choose a day, month and year")
             return
         }
@@ -138,37 +157,38 @@ function MoodEntriesPage() {
             return
         }
 
+        if (!selectedContent.trim()) {
+            setError("Please enter journal content")
+            return
+        }
+
         const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`
 
         setLoading(true)
 
         try {
             let res
+
+            const payload = {
+                date: formattedDate,
+                mood: selectedMood,
+                content: selectedContent.trim()
+            }
+
             if (editingEntryId) {
                 res = await apiCall(`/journal/${editingEntryId}`, {
                     method: "PUT",
-                    body: JSON.stringify({
-                        date: formattedDate,
-                        mood: selectedMood,
-                        content: ""
-                    })
+                    body: JSON.stringify(payload)
                 })
             } else {
                 res = await apiCall("/journal", {
                     method: "POST",
-                    body: JSON.stringify({
-                        date: formattedDate,
-                        mood: selectedMood,
-                        content: ""
-                    })
+                    body: JSON.stringify(payload)
                 })
             }
 
             const text = await res.text()
             const data = text ? JSON.parse(text) : {}
-
-            console.log("status:", res.status)
-            console.log("response:", data)
 
             if (!res.ok) {
                 setError(data.ERROR || "Failed to save entry")
@@ -176,8 +196,7 @@ function MoodEntriesPage() {
             }
 
             await fetchEntries()
-            setShowModal(false)
-            resetModal()
+            closeFormModal()
         } catch (err) {
             console.error("save entry error:", err)
             setError("Something went wrong, please try again")
@@ -186,10 +205,20 @@ function MoodEntriesPage() {
         }
     }
 
+    const handleViewEdit = () => {
+        if (!viewingEntry) return
+        closeViewModal()
+        openEditModal(viewingEntry)
+    }
+
     return (
-        <div className="mood-page" style={{ backgroundImage: `url(${BG})` }}        >
+        <div
+            className="mood-page"
+            style={{ backgroundImage: `url(${BG})` }}
+        >
             <div className="mood-shell">
                 <div className="mood-header-top">Journal</div>
+
                 <div className="mood-card">
                     <div className="mood-toolbar">
                         <div className="mood-title-wrap">
@@ -203,70 +232,69 @@ function MoodEntriesPage() {
                         </div>
                     </div>
 
+                    {error && !showFormModal && !showDeleteModal && (
+                        <div className="mood-error">{error}</div>
+                    )}
+
                     <div className="mood-table-wrap">
                         <table className="mood-table">
                             <thead>
                                 <tr>
                                     <th>date</th>
                                     <th>mood</th>
+                                    <th>actions</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {entries.length > 0 ? (
                                     entries.map((entry) => (
-                                        <tr key={entry.id}>
-                                            <td>{entry.date}</td>
+                                        <tr
+                                            key={entry.id}
+                                            className="mood-row"
+                                            onClick={() => openViewModal(entry)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <td>{entry.date || entry.entry_date}</td>
+                                            <td>{getMoodLabel(entry.mood)}</td>
                                             <td>
-                                                <div className="mood-cell">
-                                                    <span>{getMoodLabel(entry.mood)}</span>
-                                                    <div className="mood-cell">
-                                                        <button 
-                                                            className="mood-edit-btn"
-                                                            onClick={() => openEditModal(entry)}
-                                                        >
-                                                            <FaEdit />
-                                                        </button>
-                                                        <button 
-                                                            className="mood-delete-btn"
-                                                            onClick={() => handleDeleteEntry(entry.id)}
-                                                        >
-                                                            <FaTrashAlt />
-                                                        </button>
-                                                        {showDeleteModal && (
-                                                            <div className="mood-modal-overlay">
-                                                                <div className="mood-modal">
-                                                                    <h2 className="mood-delete-title">delete entry?</h2>
+                                                <div
+                                                    className="mood-actions"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <button
+                                                        className="mood-view-btn"
+                                                        onClick={() => openViewModal(entry)}
+                                                        type="button"
+                                                        aria-label="View entry"
+                                                    >
+                                                        <FaEye />
+                                                    </button>
 
-                                                                    <p className="mood-delete-text">
-                                                                        are you sure you want to delete this entry?
-                                                                    </p>
+                                                    <button
+                                                        className="mood-edit-btn"
+                                                        onClick={() => openEditModal(entry)}
+                                                        type="button"
+                                                        aria-label="Edit entry"
+                                                    >
+                                                        <FaEdit />
+                                                    </button>
 
-                                                                    <div className="mood-delete-actions">
-                                                                        <button
-                                                                            className="mood-delete-confirm"
-                                                                            onClick={confirmDelete}
-                                                                        >
-                                                                            confirm
-                                                                        </button>
-
-                                                                        <button
-                                                                            className="mood-delete-cancel"
-                                                                            onClick={cancelDelete}
-                                                                        >
-                                                                            cancel
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-)}
-                                                    </div>
+                                                    <button
+                                                        className="mood-delete-btn"
+                                                        onClick={() => handleDeleteEntry(entry.id)}
+                                                        type="button"
+                                                        aria-label="Delete entry"
+                                                    >
+                                                        <FaTrashAlt />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="2" className="no-data">
+                                        <td colSpan="3" className="no-data">
                                             no data
                                         </td>
                                     </tr>
@@ -275,18 +303,20 @@ function MoodEntriesPage() {
                         </table>
                     </div>
 
-                    {showModal && (
+                    {showFormModal && (
                         <div className="mood-modal-overlay">
                             <div className="mood-modal">
                                 <button
                                     className="mood-close-btn"
-                                    onClick={() => {
-                                        setShowModal(false)
-                                        resetModal()
-                                    }}
+                                    onClick={closeFormModal}
+                                    type="button"
                                 >
                                     ×
                                 </button>
+
+                                <h2 className="mood-modal-title">
+                                    {editingEntryId ? "edit entry" : "new entry"}
+                                </h2>
 
                                 <div className="mood-modal-field">
                                     <label>choose day:</label>
@@ -334,11 +364,11 @@ function MoodEntriesPage() {
                                         className="mood-select"
                                     >
                                         <option value="">yyyy</option>
-                                            {[2026, 2027, 2028].map((y) => (
-                                                <option key={y} value={y}>
-                                                    {y}
-                                                </option>
-                                            ))}
+                                        {[2024, 2025, 2026, 2027, 2028].map((y) => (
+                                            <option key={y} value={y}>
+                                                {y}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -350,7 +380,7 @@ function MoodEntriesPage() {
                                                 key={mood.value}
                                                 type="button"
                                                 className={`mood-option-btn ${
-                                                    selectedMood === mood.value ? "selected" : ""
+                                                    Number(selectedMood) === mood.value ? "selected" : ""
                                                 }`}
                                                 onClick={() => setSelectedMood(mood.value)}
                                             >
@@ -360,19 +390,102 @@ function MoodEntriesPage() {
                                     </div>
                                 </div>
 
+                                <div className="mood-modal-field">
+                                    <label>journal entry:</label>
+                                    <textarea
+                                        className="mood-textarea"
+                                        value={selectedContent}
+                                        onChange={(e) => setSelectedContent(e.target.value)}
+                                        placeholder="write about your day..."
+                                        rows={6}
+                                    />
+                                </div>
+
                                 {error && <div className="mood-error">{error}</div>}
 
                                 <button
                                     className="mood-save-btn"
                                     onClick={handleSaveEntry}
                                     disabled={loading}
+                                    type="button"
                                 >
-                                    {loading 
+                                    {loading
                                         ? "..."
                                         : editingEntryId
                                         ? "update entry"
                                         : "save entry"}
                                 </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showViewModal && viewingEntry && (
+                        <div className="mood-modal-overlay">
+                            <div className="mood-modal">
+                                <button
+                                    className="mood-close-btn"
+                                    onClick={closeViewModal}
+                                    type="button"
+                                >
+                                    ×
+                                </button>
+
+                                <h2 className="mood-modal-title">view entry</h2>
+
+                                <div className="mood-modal-field">
+                                    <label>date:</label>
+                                    <div>{viewingEntry.date || viewingEntry.entry_date}</div>
+                                </div>
+
+                                <div className="mood-modal-field">
+                                    <label>mood:</label>
+                                    <div>{getMoodLabel(viewingEntry.mood)}</div>
+                                </div>
+
+                                <div className="mood-modal-field">
+                                    <label>journal entry:</label>
+                                    <div className="mood-entry-preview">
+                                        {viewingEntry.content || "No content added."}
+                                    </div>
+                                </div>
+
+                                <button
+                                    className="mood-save-btn"
+                                    onClick={handleViewEdit}
+                                    type="button"
+                                >
+                                    edit entry
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showDeleteModal && (
+                        <div className="mood-modal-overlay">
+                            <div className="mood-modal">
+                                <h2 className="mood-delete-title">delete entry?</h2>
+
+                                <p className="mood-delete-text">
+                                    are you sure you want to delete this entry?
+                                </p>
+
+                                <div className="mood-delete-actions">
+                                    <button
+                                        className="mood-delete-confirm"
+                                        onClick={confirmDelete}
+                                        type="button"
+                                    >
+                                        confirm
+                                    </button>
+
+                                    <button
+                                        className="mood-delete-cancel"
+                                        onClick={cancelDelete}
+                                        type="button"
+                                    >
+                                        cancel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
