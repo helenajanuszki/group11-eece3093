@@ -15,7 +15,7 @@ function NavSidebar({ open, setOpen }) {
                 <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
                 <Link to="/journal" onClick={() => setOpen(false)}>Journal</Link>
                 <Link to="/lists" onClick={() => setOpen(false)}>Lists</Link>
-                <Link to="/profile" onClick={() => setOpen(false)}>Profile</Link>
+                <Link to="/reminders" onClick={() => setOpen(false)}>Reminders</Link>
             </nav>
         </div>
     )

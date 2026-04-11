@@ -4,7 +4,7 @@ import apiCall from "./api/client"
 import "./styles/auth.css"
 
 const SHARK = "/shark.png"
-const BG = "/bg.png"
+const BG = "/background-faded-blue.avif"
 
 function RegisterPage() {
     const [username, setUsername] = useState("")

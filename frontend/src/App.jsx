@@ -13,7 +13,6 @@ function ProtectedRoute({ children }) {
 function App() {
     return (
         <BrowserRouter>
-            <Header />
 
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
@@ -21,11 +20,24 @@ function App() {
 
                 <Route path="/dashboard" element={
                     <ProtectedRoute>
-                        <div>Dashboard</div>
+                        <>
+                            <Header />
+                            <div>Dashboard</div>
+                        </>
                     </ProtectedRoute>
                 } />
 
-                <Route path="/journal" element={<MoodEntriesPage />} />
+                <Route
+                    path="/journal"
+                    element={
+                        <ProtectedRoute>
+                            <>
+                                <Header />
+                                <MoodEntriesPage />
+                            </>
+                        </ProtectedRoute>
+                    }
+                />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Routes>
