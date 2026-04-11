@@ -6,10 +6,11 @@ class Role(enum.Enum):
     student = "student"
     admin = "admin"
 
-admin_students = db.Table("admin_students",
-    db.Column("admin_id", db.Integer, db.ForeignKey("user.id"), nullable=False),
-    db.Column("student_id", db.Integer, db.ForeignKey("user.id"), nullable=False),
-    db.Column("list_id", db.Integer, db.ForeignKey("todo_list.id"), nullable=True)
+admin_students = db.Table(
+    "admin_students",
+    db.Column("admin_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
+    db.Column("student_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
+    db.Column("list_id", db.Integer, db.ForeignKey("todo_list.id"), nullable=True),
 )
 
 class User(db.Model):

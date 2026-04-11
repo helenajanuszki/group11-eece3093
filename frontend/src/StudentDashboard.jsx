@@ -60,6 +60,14 @@ export default function StudentDashboard() {
     status: "incomplete",
   })
 
+  const [showAddListModal, setShowAddListModal] = useState(false)
+  const [addingList, setAddingList] = useState(false)
+  const [addListMessage, setAddListMessage] = useState("")
+  const [newListForm, setNewListForm] = useState({
+    name: "",
+    description: "",
+  })
+
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -79,48 +87,37 @@ export default function StudentDashboard() {
     return "priority-low"
   }
 
-  const closeTaskEditor = () => {
-    setSelectedTask(null)
-    setTaskMessage("")
-  }
+  const loadLists = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const [personalRes, adminRes] = await Promise.all([
+        apiCall("/lists", { method: "GET" }),
+        apiCall("/lists/assigned", { method: "GET" }),
+      ])
 
-  const pickTask = (task) => {
-    setSelectedTask(task)
-    setTaskMessage("")
-    setTaskForm({
-      title: task.title || "",
-      description: task.description || "",
-      due_date: toInputDateTime(task.due_date),
-      priority: task.priority || "low",
-      status: task.status || "incomplete",
-    })
+      const personalData = await personalRes.json()
+      const adminData = await adminRes.json()
+
+      if (!personalRes.ok) throw new Error(personalData.ERROR || "Failed to load personal lists")
+      if (!adminRes.ok) throw new Error(adminData.ERROR || "Failed to load admin lists")
+
+      const allPersonal = Array.isArray(personalData) ? personalData : []
+      const assigned = Array.isArray(adminData) ? adminData : []
+
+      const assignedIds = new Set(assigned.map((l) => l.id))
+      const personalOnly = allPersonal.filter((l) => !assignedIds.has(l.id))
+
+      setPersonalLists(personalOnly)
+      setAdminLists(assigned)
+    } catch (e) {
+      setError(e.message || "Failed to load dashboard")
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    const loadLists = async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const [personalRes, adminRes] = await Promise.all([
-          apiCall("/lists", { method: "GET" }),
-          apiCall("/lists/assigned", { method: "GET" }),
-        ])
-
-        const personalData = await personalRes.json()
-        const adminData = await adminRes.json()
-
-        if (!personalRes.ok) throw new Error(personalData.ERROR || "Failed to load personal lists")
-        if (!adminRes.ok) throw new Error(adminData.ERROR || "Failed to load admin lists")
-
-        setPersonalLists(Array.isArray(personalData) ? personalData : [])
-        setAdminLists(Array.isArray(adminData) ? adminData : [])
-      } catch (e) {
-        setError(e.message || "Failed to load dashboard")
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadLists()
   }, [])
 
@@ -143,6 +140,23 @@ export default function StudentDashboard() {
     } finally {
       setLoadingTasks(false)
     }
+  }
+
+  const closeTaskEditor = () => {
+    setSelectedTask(null)
+    setTaskMessage("")
+  }
+
+  const pickTask = (task) => {
+    setSelectedTask(task)
+    setTaskMessage("")
+    setTaskForm({
+      title: task.title || "",
+      description: task.description || "",
+      due_date: toInputDateTime(task.due_date),
+      priority: task.priority || "low",
+      status: task.status || "incomplete",
+    })
   }
 
   const handleUpdateTask = async () => {
@@ -235,7 +249,8 @@ export default function StudentDashboard() {
     })
     setShowAddTaskModal(true)
   }
-    const closeAddTaskModal = () => {
+
+  const closeAddTaskModal = () => {
     setShowAddTaskModal(false)
     setAddTaskMessage("")
   }
@@ -274,6 +289,50 @@ export default function StudentDashboard() {
       setAddTaskMessage(e.message || "Failed to create task")
     } finally {
       setAddingTask(false)
+    }
+  }
+
+  const openAddListModal = () => {
+    setAddListMessage("")
+    setNewListForm({ name: "", description: "" })
+    setShowAddListModal(true)
+  }
+
+  const closeAddListModal = () => {
+    setShowAddListModal(false)
+    setAddListMessage("")
+  }
+
+  const handleListField = (field, value) => {
+    setNewListForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleCreateList = async () => {
+    if (!newListForm.name.trim()) {
+      setAddListMessage("List name is required.")
+      return
+    }
+
+    setAddingList(true)
+    setAddListMessage("")
+    try {
+      const res = await apiCall("/lists", {
+        method: "POST",
+        body: JSON.stringify({
+          name: newListForm.name.trim(),
+          description: newListForm.description?.trim() || "",
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.ERROR || "Failed to create list")
+
+      await loadLists()
+      closeAddListModal()
+    } catch (e) {
+      setAddListMessage(e.message || "Failed to create list")
+    } finally {
+      setAddingList(false)
     }
   }
 
@@ -319,7 +378,13 @@ export default function StudentDashboard() {
         <section className="sd-grid">
           <div className="sd-left-col">
             <article className="sd-card">
-              <h3 className="sd-title">My Personal Lists</h3>
+              <div className="sd-title-row">
+                <h3 className="sd-title">My Personal Lists</h3>
+                <button type="button" className="sd-btn" onClick={openAddListModal}>
+                  + Add List
+                </button>
+              </div>
+
               {loading ? (
                 <p className="sd-text">Loading...</p>
               ) : personalLists.length === 0 ? (
@@ -387,22 +452,54 @@ export default function StudentDashboard() {
             ) : (
               <ul className="sd-task-list">
                 {tasks.map((task) => (
-                <li key={task.id}>
+                  <li key={task.id}>
                     <button
-                    className={`sd-task-item ${getPriorityClass(task.priority)} ${selectedTask?.id === task.id ? "is-active" : ""}`}
-                    onClick={() => pickTask(task)}
+                      className={`sd-task-item ${getPriorityClass(task.priority)} ${selectedTask?.id === task.id ? "is-active" : ""}`}
+                      onClick={() => pickTask(task)}
                     >
-                    <strong>{task.title || task.name || "Task"}</strong>
-                    <span>{task.description || "No description"}</span>
-                    <span>Due: {formatDueDateTime(task.due_date)}</span>
-                    <span>Status: {task.status || "incomplete"}</span>
+                      <strong>{task.title || task.name || "Task"}</strong>
+                      <span>{task.description || "No description"}</span>
+                      <span>Due: {formatDueDateTime(task.due_date)}</span>
+                      <span>Status: {task.status || "incomplete"}</span>
                     </button>
-                </li>
+                  </li>
                 ))}
               </ul>
             )}
           </article>
         </section>
+
+        {showAddListModal && (
+          <div className="sd-modal-overlay" onClick={closeAddListModal}>
+            <div className="sd-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="sd-modal-close" type="button" onClick={closeAddListModal}>
+                ×
+              </button>
+
+              <h4 className="sd-title">Add Personal List</h4>
+
+              <input
+                className="sd-input"
+                value={newListForm.name}
+                onChange={(e) => handleListField("name", e.target.value)}
+                placeholder="List name"
+              />
+              <textarea
+                className="sd-input"
+                rows={3}
+                value={newListForm.description}
+                onChange={(e) => handleListField("description", e.target.value)}
+                placeholder="Description (optional)"
+              />
+
+              <button className="sd-btn" type="button" onClick={handleCreateList} disabled={addingList}>
+                {addingList ? "Saving..." : "Create List"}
+              </button>
+              {addListMessage ? <p className="sd-note">{addListMessage}</p> : null}
+            </div>
+          </div>
+        )}
+
         {showAddTaskModal && (
           <div className="sd-modal-overlay" onClick={closeAddTaskModal}>
             <div className="sd-modal" onClick={(e) => e.stopPropagation()}>
@@ -457,6 +554,7 @@ export default function StudentDashboard() {
             </div>
           </div>
         )}
+
         {selectedTask && (
           <div className="sd-modal-overlay" onClick={closeTaskEditor}>
             <div className="sd-modal" onClick={(e) => e.stopPropagation()}>

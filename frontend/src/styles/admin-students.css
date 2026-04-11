@@ -1,0 +1,93 @@
+.as-page {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.as-shell {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.as-header-top {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 14px;
+}
+
+.as-card {
+  background: rgba(10, 40, 80, 0.5);
+  border: 2px solid rgba(100, 200, 255, 0.25);
+  border-radius: 16px;
+  backdrop-filter: blur(3px);
+  padding: 16px;
+  color: #d0eeff;
+}
+
+.as-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.as-input {
+  width: 100%;
+  background: rgba(180, 220, 255, 0.12);
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  border-radius: 10px;
+  color: #e6f6ff;
+  padding: 10px;
+}
+
+.as-btn {
+  border: 1px solid rgba(100, 200, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(80, 180, 255, 0.22);
+  color: #e6f6ff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.as-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.as-item {
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(170, 220, 255, 0.08);
+}
+
+.as-sub {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.as-badge {
+  border: 1px solid rgba(130, 210, 255, 0.8);
+  background: rgba(100, 200, 255, 0.2);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.as-note {
+  margin: 8px 0;
+}
+
+.as-btn-danger {
+  border-color: rgba(255, 120, 120, 0.55);
+  background: rgba(255, 80, 80, 0.2);
+}
