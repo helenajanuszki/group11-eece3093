@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import LoginPage from "./LogIn"
+import StudentDashboard from "./StudentDashboard"
 import RegisterPage from "./Register"
 import MoodEntriesPage from "./Journal"
 import Header from "./components/Header"
@@ -22,7 +23,7 @@ function App() {
                     <ProtectedRoute>
                         <>
                             <Header />
-                            <div>Dashboard</div>
+                            <StudentDashboard />
                         </>
                     </ProtectedRoute>
                 } />

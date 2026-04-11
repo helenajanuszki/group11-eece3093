@@ -1,0 +1,275 @@
+.sd-page {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.sd-shell {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.sd-header-top {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 14px;
+}
+
+.sd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sd-card {
+  background: rgba(10, 40, 80, 0.5);
+  border: 2px solid rgba(100, 200, 255, 0.25);
+  border-radius: 16px;
+  backdrop-filter: blur(3px);
+  padding: 16px;
+  color: #d0eeff;
+  margin-bottom: 16px;
+}
+
+.sd-title {
+  margin: 0 0 12px;
+  color: #e6f6ff;
+}
+
+.sd-mood-card {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-mood-row {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sd-mood-btn {
+  width: 100%;
+  min-height: 110px;
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  background: rgba(170, 220, 255, 0.1);
+  color: #e6f6ff;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sd-mood-icon {
+  font-size: 2rem;
+}
+
+.sd-mood-btn.is-active {
+  background: rgba(100, 200, 255, 0.28);
+  border-color: rgba(150, 220, 255, 0.9);
+}
+
+.sd-journal {
+  display: grid;
+  gap: 8px;
+}
+
+.sd-input {
+  width: 100%;
+  resize: vertical;
+  background: rgba(180, 220, 255, 0.12);
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  border-radius: 10px;
+  color: #e6f6ff;
+  padding: 10px;
+}
+
+.sd-btn {
+  width: fit-content;
+  border: 1px solid rgba(100, 200, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(80, 180, 255, 0.22);
+  color: #e6f6ff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.sd-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.sd-list li {
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  background: rgba(170, 220, 255, 0.08);
+}
+
+.sd-text,
+.sd-note,
+.sd-error {
+  margin: 0;
+}
+
+.sd-error {
+  color: #ffbcbc;
+}
+
+.sd-left-col {
+  display: grid;
+  gap: 16px;
+}
+
+.sd-list-item-btn {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  background: rgba(170, 220, 255, 0.08);
+  color: #d0eeff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.sd-list-item-btn.is-active {
+  border-color: rgba(150, 220, 255, 0.9);
+  background: rgba(100, 200, 255, 0.2);
+}
+
+.sd-list-item-btn strong,
+.sd-list-item-btn span {
+  pointer-events: none;
+}
+
+.sd-task-list {
+  list-style: none;
+  margin: 0 0 12px 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.sd-task-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-left: 6px solid transparent;
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  background: rgba(170, 220, 255, 0.08);
+  color: #d0eeff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.sd-task-item.is-active {
+  border-color: rgba(150, 220, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(150, 220, 255, 0.35) inset;
+}
+
+.sd-task-item.priority-high { border-left-color: #ff7b7b; }
+.sd-task-item.priority-medium { border-left-color: #ffd36b; }
+.sd-task-item.priority-low { border-left-color: #75e3a3; }
+
+.sd-task-editor {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid rgba(100, 200, 255, 0.2);
+  padding-top: 10px;
+}
+
+.sd-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 20, 40, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.sd-modal {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(10, 40, 80, 0.95);
+  border: 2px solid rgba(100, 200, 255, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  position: relative;
+}
+
+.sd-modal-close {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  border: none;
+  background: transparent;
+  color: #d0eeff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+select.sd-input {
+  background: rgba(10, 40, 80, 0.85);
+  color: #d0eeff;
+  border: 1px solid rgba(100, 200, 255, 0.35);
+}
+
+select.sd-input option {
+  background-color: #0d2e52;
+  color: #d0eeff;
+}
+
+select.sd-input:focus {
+  outline: none;
+  border-color: rgba(130, 210, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
+}
+
+.sd-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.sd-title-row .sd-title {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .sd-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .sd-mood-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
