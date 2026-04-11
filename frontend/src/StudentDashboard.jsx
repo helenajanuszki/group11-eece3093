@@ -68,6 +68,10 @@ export default function StudentDashboard() {
     description: "",
   })
 
+  const notifyListsChanged = () => {
+    localStorage.setItem("studentListsSync", String(Date.now()));
+  };
+
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -182,8 +186,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to update task")
 
-      await loadTasksForList(selectedList)
-      closeTaskEditor()
+      await loadTasksForList(selectedList);
+      notifyListsChanged();
+      closeTaskEditor();
     } catch (e) {
       setTaskMessage(e.message || "Failed to update task")
     } finally {
@@ -283,8 +288,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to create task")
 
-      await loadTasksForList(selectedList)
-      closeAddTaskModal()
+      await loadTasksForList(selectedList);
+      notifyListsChanged();
+      closeAddTaskModal();
     } catch (e) {
       setAddTaskMessage(e.message || "Failed to create task")
     } finally {
@@ -327,8 +333,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to create list")
 
-      await loadLists()
-      closeAddListModal()
+      await loadLists();
+      notifyListsChanged();
+      closeAddListModal();
     } catch (e) {
       setAddListMessage(e.message || "Failed to create list")
     } finally {
