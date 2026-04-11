@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .mood-page {
     min-height: 100vh;
@@ -8,6 +7,18 @@
     justify-content: center;
     align-items: flex-start;
     padding: 40px 20px;
+}
+
+.mood-icon {
+    font-size: 22px;
+
+}
+
+.mood-option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
 }
 
 .mood-shell {
@@ -52,12 +63,9 @@
 
 .mood-title {
     color: #d0eeff;
-    font-size: 20px;
-    letter-spacing: 4px;
+    font-size: 30px;
     margin: 0;
-    text-transform: lowercase;
-    letter-spacing: 1px;
-    text-shadow: 0 0 18px rgba(100, 200, 255, 0.7);
+    text-shadow: none;
 }
 
 .mood-add-btn {
@@ -66,15 +74,12 @@
     border: 2px solid rgba(100, 200, 255, 0.55);
     border-radius: 8px;
     color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
     font-size: 10px;
     cursor: pointer;
-    box-shadow: 0 0 16px rgba(100, 200, 255, 0.15);
 }
 
 .mood-add-btn:hover {
     background: rgba(80, 180, 255, 0.35);
-    box-shadow: 0 0 24px rgba(100, 200, 255, 0.3);
 }
 
 .mood-toolbar-right {
@@ -90,24 +95,6 @@
     font-size: 14px;
     cursor: pointer;
 }
-
-/* .mood-profile {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #203c61;
-    background: #0b1930;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-} */
-
-/* .mood-profile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-} */
 
 .mood-table-wrap {
     background: rgba(84, 117, 156, 0.55);
@@ -128,7 +115,7 @@
 
 .mood-table th,
 .mood-table td {
-    padding: 18px 24px;
+    padding: 18px 30px;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.25);
 }
@@ -137,37 +124,38 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
+    align-items: center;
 }
 
-.mood-edit-btn {
+/* .mood-edit-btn {
     padding: 8px 10px;
     background: rgba(80, 180, 255, 0.2);
     border: 1px solid rgba(100, 200, 255, 0.45);
     border-radius: 6px;
     color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
+
+    font-size: 15px;
+    cursor: pointer;
+} */
+
+/* .mood-edit-btn:hover {
+    opacity: 0.92;
+} */
+
+/* .mood-delete-btn {
+    padding: 8px 10px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 1px solid rgba(100, 200, 255, 0.45);
+    border-radius: 6px;
+    color: #d0eeff;
+
     font-size: 15px;
     cursor: pointer;
 }
 
 .mood-edit-btn:hover {
     opacity: 0.92;
-}
-
-.mood-delete-btn {
-    padding: 8px 10px;
-    background: rgba(80, 180, 255, 0.2);
-    border: 1px solid rgba(100, 200, 255, 0.45);
-    border-radius: 6px;
-    color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-.mood-edit-btn:hover {
-    opacity: 0.92;
-}
+} */
 
 .no-data {
     text-align: center;
@@ -183,6 +171,8 @@
     justify-content: center;
     align-items: center;
     border-radius: 8px;
+    
+
 }
 
 .mood-modal {
@@ -191,12 +181,12 @@
     border: 2px solid rgba(100, 200, 255, 0.25);
     padding: 28px;
     width: 300px;
-    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
     gap: 16px;
     position: relative;
     color: #d0eeff;
+    
 }
 
 .mood-close-btn {
@@ -218,10 +208,9 @@
 
 .mood-modal-field label {
     color: #d0eeff;
-    font-size: 12px;
-    letter-spacing: 4px;
-    text-shadow: 0 0 18px rgba(100, 200, 255, 0.7);
-    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+
+
 }
 
 .mood-select {
@@ -231,8 +220,6 @@
     border-radius: 8px;
     padding: 10px;
     color: #e0f4ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
 }
 
 .mood-select option {
@@ -253,8 +240,7 @@
     border: 1px solid rgba(100, 200, 255, 0.35);
     border-radius: 6px;
     color: #e0f4ff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+    font-size: 20px;
     cursor: pointer;
 }
 
@@ -271,7 +257,7 @@
 
 .mood-delete-text {
     color: #d0eeff;
-    font-size: 7px;
+    font-size: 12px;
     text-align: center;
     line-height: 1.6;
 }
@@ -289,8 +275,8 @@
     border: 2px solid rgba(255, 100, 100, 0.55);
     border-radius: 8px;
     color: #ffbbbb;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
+
+    font-size: 12px;
     cursor: pointer;
 }
 
@@ -306,14 +292,13 @@
     border: 2px solid rgba(100, 200, 255, 0.55);
     border-radius: 8px;
     color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
+
+    font-size: 12px;
     cursor: pointer;
 }
 
 .mood-delete-cancel:hover {
     background: rgba(80, 180, 255, 0.35);
-    box-shadow: 0 0 16px rgba(100, 200, 255, 0.3);
 }
 
 .mood-error {
@@ -322,12 +307,12 @@
     border-radius: 8px;
     padding: 10px 14px;
     color: #ffbbbb;
-    font-size: 7px;
+    font-size: 12px;
     line-height: 1.8;
     width: 100%;
     text-align: center;
     box-sizing: border-box;
-    font-family: 'Press Start 2P', monospace;
+
 }
 
 .mood-save-btn {
@@ -337,10 +322,9 @@
     border: 2px solid rgba(100, 200, 255, 0.55);
     border-radius: 8px;
     color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
+
     font-size: 20px;
     cursor: pointer;
-    letter-spacing: 2px;
 }
 
 .mood-save-btn:hover {
@@ -351,14 +335,25 @@
 .mood-edit-btn,
 .mood-delete-btn {
     padding: 10px 14px;
+    justify-content: space-between;
+    margin-inline-start: 10px;
     background: rgba(80, 180, 255, 0.2);
     border: 2px solid rgba(100, 200, 255, 0.55);
     border-radius: 8px;
     color: #d0eeff;
-    font-family: 'Press Start 2P', monospace;
+
     font-size: 15px;
     cursor: pointer;
-    box-shadow: 0 0 16px rgba(100, 200, 255, 0.15);
+}
+
+.mood-delete-btn:hover {
+    background: rgba(80, 180, 255, 0.35);
+}
+.mood-edit-btn:hover {
+    background: rgba(80, 180, 255, 0.35);
+}
+.mood-view-btn:hover {
+    background: rgba(80, 180, 255, 0.35);
 }
 
 .mood-textarea {
@@ -373,8 +368,8 @@
     padding: 10px;
     color: #e0f4ff;
 
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+
+    font-size: 12px;
 
     outline: none;
 }
@@ -391,8 +386,8 @@
 
     color: #e0f4ff;
 
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
+
+    font-size: 12px;
 
     white-space: pre-wrap;
     word-break: break-word;
@@ -426,7 +421,7 @@
 
     .mood-actions {
         display: flex;
-        gap: 8px;
+        gap: 16px;   /* increase this (try 16–24px) */
         align-items: center;
-    }
+    }   
 }

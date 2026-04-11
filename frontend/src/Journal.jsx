@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import "./styles/moodEntries.css"
 import apiCall from "./api/client"
-import { FaTrashAlt, FaEdit, FaEye } from "react-icons/fa"
+import { FaTrashAlt, FaEdit, FaEye, FaSmile, FaGrinBeam, FaMeh, FaFrown, FaSadTear } from "react-icons/fa"
 
-const BG = "/bg.png"
+const BG = "/background-faded-blue.avif"
 
 function MoodEntriesPage() {
     const [entries, setEntries] = useState([])
@@ -24,11 +24,11 @@ function MoodEntriesPage() {
     const [viewingEntry, setViewingEntry] = useState(null)
 
     const moods = [
-        { label: ":D", value: 5 },
-        { label: ":)", value: 4 },
-        { label: ":|", value: 3 },
-        { label: ":(", value: 2 },
-        { label: "D:", value: 1 }
+        { icon: <FaGrinBeam />, value: 5 },
+        { icon: <FaSmile />, value: 4 },
+        { icon: <FaMeh />, value: 3 },
+        { icon: <FaFrown />, value: 2 },
+        { icon: <FaSadTear />, value: 1 }
     ]
 
     useEffect(() => {
@@ -108,7 +108,7 @@ function MoodEntriesPage() {
     const getMoodLabel = (value) => {
         const numericValue = Number(value)
         const match = moods.find((option) => option.value === numericValue)
-        return match ? match.label : value
+        return match ? match.icon : null
     }
 
     const handleDeleteEntry = (id) => {
@@ -222,7 +222,7 @@ function MoodEntriesPage() {
                 <div className="mood-card">
                     <div className="mood-toolbar">
                         <div className="mood-title-wrap">
-                            <h1 className="mood-title">mood entries</h1>
+                            <h1 className="mood-title">Mood Entries</h1>
                             <button
                                 className="mood-add-btn"
                                 onClick={openCreateModal}
@@ -240,9 +240,9 @@ function MoodEntriesPage() {
                         <table className="mood-table">
                             <thead>
                                 <tr>
-                                    <th>date</th>
-                                    <th>mood</th>
-                                    <th>actions</th>
+                                    <th>Date</th>
+                                    <th>Mood</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
 
@@ -256,7 +256,7 @@ function MoodEntriesPage() {
                                             style={{ cursor: "pointer" }}
                                         >
                                             <td>{entry.date || entry.entry_date}</td>
-                                            <td>{getMoodLabel(entry.mood)}</td>
+                                            <td className="mood-icon">{getMoodLabel(entry.mood)}</td>
                                             <td>
                                                 <div
                                                     className="mood-actions"
@@ -319,7 +319,7 @@ function MoodEntriesPage() {
                                 </h2>
 
                                 <div className="mood-modal-field">
-                                    <label>choose day:</label>
+                                    <label>Choose day:</label>
                                     <select
                                         value={selectedDay}
                                         onChange={(e) => setSelectedDay(e.target.value)}
@@ -338,7 +338,7 @@ function MoodEntriesPage() {
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>choose month:</label>
+                                    <label>Choose month:</label>
                                     <select
                                         value={selectedMonth}
                                         onChange={(e) => setSelectedMonth(e.target.value)}
@@ -357,7 +357,7 @@ function MoodEntriesPage() {
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>choose year:</label>
+                                    <label>Choose year:</label>
                                     <select
                                         value={selectedYear}
                                         onChange={(e) => setSelectedYear(e.target.value)}
@@ -373,7 +373,7 @@ function MoodEntriesPage() {
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>choose mood:</label>
+                                    <label>Choose mood:</label>
                                     <div className="mood-options">
                                         {moods.map((mood) => (
                                             <button
@@ -384,19 +384,19 @@ function MoodEntriesPage() {
                                                 }`}
                                                 onClick={() => setSelectedMood(mood.value)}
                                             >
-                                                {mood.label}
+                                                {mood.icon}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>journal entry:</label>
+                                    <label>Journal entry:</label>
                                     <textarea
                                         className="mood-textarea"
                                         value={selectedContent}
                                         onChange={(e) => setSelectedContent(e.target.value)}
-                                        placeholder="write about your day..."
+                                        placeholder="Write about your day..."
                                         rows={6}
                                     />
                                 </div>
@@ -412,8 +412,8 @@ function MoodEntriesPage() {
                                     {loading
                                         ? "..."
                                         : editingEntryId
-                                        ? "update entry"
-                                        : "save entry"}
+                                        ? "Update entry"
+                                        : "Save entry"}
                                 </button>
                             </div>
                         </div>
@@ -430,20 +430,20 @@ function MoodEntriesPage() {
                                     ×
                                 </button>
 
-                                <h2 className="mood-modal-title">view entry</h2>
+                                <h2 className="mood-modal-title">View entry</h2>
 
                                 <div className="mood-modal-field">
-                                    <label>date:</label>
+                                    <label>Date:</label>
                                     <div>{viewingEntry.date || viewingEntry.entry_date}</div>
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>mood:</label>
-                                    <div>{getMoodLabel(viewingEntry.mood)}</div>
+                                    <label>Mood:</label>
+                                    <div className="mood-icon">{getMoodLabel(viewingEntry.mood)}</div>
                                 </div>
 
                                 <div className="mood-modal-field">
-                                    <label>journal entry:</label>
+                                    <label>Journal entry:</label>
                                     <div className="mood-entry-preview">
                                         {viewingEntry.content || "No content added."}
                                     </div>
@@ -454,7 +454,7 @@ function MoodEntriesPage() {
                                     onClick={handleViewEdit}
                                     type="button"
                                 >
-                                    edit entry
+                                    Edit entry
                                 </button>
                             </div>
                         </div>
