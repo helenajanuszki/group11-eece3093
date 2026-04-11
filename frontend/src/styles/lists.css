@@ -9,183 +9,302 @@
 }
 
 .task-card {
-  width: 100%;
-  max-width: 1100px;
-  background: #001c34;
-  border-radius: 8px;
-  padding: 18px;
-  color: white;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 1100px;
+    background: rgba(10, 40, 80, 0.50);
+    backdrop-filter: blur(3px);
+    border-radius: 18px;
+    border: 2px solid rgba(100, 200, 255, 0.25);
+    padding: 36px 40px;
+    min-height: 520px;
+    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
 }
 
 .task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
 }
 
 .task-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  text-transform: lowercase;
+    color: #d0eeff;
+    font-size: 30px;
+    margin: 0;
+    text-shadow: none;
 }
 
-.task-filter,
-.task-form input,
-.task-form textarea,
-.task-form select {
-  background: #e9eef6;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
+.task-filter {
+    min-width: 220px;
+    background: rgba(180, 220, 255, 0.12);
+    border: 1px solid rgba(100, 200, 255, 0.35);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e0f4ff;
+    font-size: 14px;
+    outline: none;
 }
 
-.admin-forms {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+.task-filter option {
+    background: #0a1a2e;
+    color: #d0eeff;
 }
 
-.task-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.info-text {
+    text-align: center;
+    color: rgba(208, 238, 255, 0.85);
+    padding: 12px;
+    font-size: 14px;
 }
 
-.task-form h2 {
-  margin: 0 0 6px 0;
-  font-size: 1rem;
-}
-
-.task-form textarea {
-  min-height: 80px;
-  resize: vertical;
+.error-text {
+    background: rgba(255, 80, 80, 0.18);
+    border: 1px solid rgba(255, 100, 100, 0.45);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #ffbbbb;
+    font-size: 12px;
+    line-height: 1.8;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .task-table-wrapper {
-  background: #334d70;
-  border-radius: 8px;
-  overflow: hidden;
+    background: rgba(84, 117, 156, 0.55);
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .task-table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+    font-size: 1rem;
+    min-width: 900px;
 }
 
 .task-table thead {
-  background: #3c587c;
+    background: rgba(49, 78, 115, 0.85);
 }
 
 .task-table th,
 .task-table td {
-  padding: 14px 10px;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 0.95rem;
+    padding: 18px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    vertical-align: middle;
+}
+
+.task-table th {
+    color: #d0eeff;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.task-table td {
+    color: #f4fbff;
+    font-size: 0.95rem;
 }
 
 .empty-row {
-  text-align: center;
-  padding: 30px;
-  color: #e0e6f2;
+    text-align: center;
+    color: rgba(180, 220, 255, 0.6);
+    padding: 24px;
 }
 
+/* all selects inside the task table, including move dropdown */
+.task-table select,
 .status-pill {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
+    width: 100%;
+    min-width: 110px;
+    background: rgba(180, 220, 255, 0.12);
+    border: 1px solid rgba(100, 200, 255, 0.35);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #e0f4ff;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
 }
 
-.status-pill.complete {
-  background: #4f8f2f;
+.task-table select option,
+.status-pill option {
+    background: #0a1a2e;
+    color: #d0eeff;
+}
+
+.task-table select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* status dropdown coloring */
+.status-pill.incomplete {
+    background: rgba(255, 80, 80, 0.18);
+    border-color: rgba(255, 100, 100, 0.55);
+    color: #ffb3b3;
 }
 
 .status-pill.in_progress {
-  background: #9a812d;
+    background: rgba(255, 210, 80, 0.18);
+    border-color: rgba(255, 210, 100, 0.55);
+    color: #ffe8a3;
 }
 
-.status-pill.incomplete {
-  background: #7b3e3e;
+.status-pill.complete {
+    background: rgba(80, 255, 150, 0.18);
+    border-color: rgba(100, 255, 170, 0.55);
+    color: #b8ffd9;
+}
+
+/* buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .small-btn {
-  background: #173a5e;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: 600;
+    padding: 10px 14px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 2px solid rgba(100, 200, 255, 0.55);
+    border-radius: 8px;
+    color: #d0eeff;
+    font-size: 13px;
+    cursor: pointer;
 }
 
 .small-btn:hover {
-  opacity: 0.92;
+    background: rgba(80, 180, 255, 0.35);
 }
 
 .small-btn.danger {
-  background: #8d2f2f;
+    background: rgba(255, 80, 80, 0.16);
+    border: 2px solid rgba(255, 100, 100, 0.45);
+    color: #ffcccc;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.small-btn.danger:hover {
+    background: rgba(255, 80, 80, 0.30);
 }
 
-.info-text {
-  color: #d6deea;
-}
-
-.error-text {
-  color: #ff9d9d;
-  font-weight: 600;
-}
-
+/* modal */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.58);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 26, 38, 0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 999;
 }
 
 .modal-card {
-  background: #0d2742;
-  color: white;
-  padding: 22px;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 430px;
+    background: rgba(10, 40, 80, 0.88);
+    border-radius: 18px;
+    border: 2px solid rgba(100, 200, 255, 0.25);
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #d0eeff;
+    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.55);
+}
+
+.modal-card h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #d0eeff;
+}
+
+.task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.task-form input,
+.task-form textarea,
+.task-form select {
+    width: 100%;
+    background: rgba(180, 220, 255, 0.12);
+    border: 1px solid rgba(100, 200, 255, 0.35);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e0f4ff;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.task-form input::placeholder,
+.task-form textarea::placeholder {
+    color: rgba(224, 244, 255, 0.65);
+}
+
+.task-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.task-form select option {
+    background: #0a1a2e;
+    color: #d0eeff;
 }
 
 .modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
 }
 
-@media (max-width: 900px) {
-  .admin-forms {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 768px) {
+    .task-card {
+        padding: 24px 20px;
+    }
 
-  .task-header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
+    .task-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .task-table {
-    font-size: 0.85rem;
-  }
+    .task-header h1 {
+        font-size: 2rem;
+    }
+
+    .task-filter {
+        width: 100%;
+    }
+
+    .task-table th,
+    .task-table td {
+        padding: 14px 12px;
+        font-size: 0.95rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .small-btn {
+        width: 100%;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
 }

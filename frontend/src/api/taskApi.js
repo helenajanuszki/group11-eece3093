@@ -1,40 +1,72 @@
 import apiCall from "./client";
 
 export async function getOwnLists() {
-  return await apiCall("/lists", { method: "GET" });
+  const res = await apiCall("/lists", {
+    method: "GET",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.ERROR || "Failed to load own lists");
+  }
+
+  return data;
 }
 
 export async function getAssignedLists() {
-  return await apiCall("/lists/assigned", { method: "GET" });
+  const res = await apiCall("/lists/assigned", {
+    method: "GET",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.ERROR || "Failed to load assigned lists");
+  }
+
+  return data;
 }
 
 export async function getListDetails(listId) {
-  return await apiCall(`/lists/${listId}`, { method: "GET" });
+  const res = await apiCall(`/lists/${listId}`, {
+    method: "GET",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.ERROR || "Failed to load list details");
+  }
+
+  return data;
 }
 
-export async function updateTask(listId, taskId, payload) {
-  return await apiCall(`/lists/${listId}/tasks/${taskId}`, {
+export async function updateTask(listId, taskId, updates) {
+  const res = await apiCall(`/lists/${listId}/tasks/${taskId}`, {
     method: "PUT",
-    body: payload,
+    body: JSON.stringify(updates),
   });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.ERROR || "Failed to update task");
+  }
+
+  return data;
 }
 
 export async function deleteTask(listId, taskId) {
-  return await apiCall(`/lists/${listId}/tasks/${taskId}`, {
+  const res = await apiCall(`/lists/${listId}/tasks/${taskId}`, {
     method: "DELETE",
   });
-}
 
-export async function createTaskInList(listId, payload) {
-  return await apiCall(`/lists/${listId}/tasks`, {
-    method: "POST",
-    body: payload,
-  });
-}
+  const data = await res.json();
 
-export async function assignTaskToStudents(payload) {
-  return await apiCall("/tasks", {
-    method: "POST",
-    body: payload,
-  });
+  if (!res.ok) {
+    throw new Error(data.ERROR || "Failed to delete task");
+  }
+
+  return data;
 }

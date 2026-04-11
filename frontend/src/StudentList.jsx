@@ -28,6 +28,21 @@ function toInputDateTime(dateStr) {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 }
 
+function normalizeListArray(response) {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.lists)) return response.lists;
+  if (Array.isArray(response?.data?.lists)) return response.data.lists;
+  return [];
+}
+
+function normalizeTaskArray(response) {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.tasks)) return response.tasks;
+  if (Array.isArray(response?.data?.tasks)) return response.data.tasks;
+  return [];
+}
+
 export default function StudentListPage() {
   const [lists, setLists] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -39,6 +54,11 @@ export default function StudentListPage() {
   const BG = "/background-faded-blue.avif";
   const location = useLocation();
 
+  const notifyListsChanged = () => {
+    localStorage.setItem("studentListsSync", String(Date.now()));
+    window.dispatchEvent(new Event("studentListsUpdated"));
+  };
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -49,20 +69,11 @@ export default function StudentListPage() {
         getAssignedLists(),
       ]);
 
-      console.log("ownListsResponse:", ownListsResponse);
-      console.log("assignedListsResponse:", assignedListsResponse);
+      console.log("OWN LISTS RESPONSE:", ownListsResponse);
+      console.log("ASSIGNED LISTS RESPONSE:", assignedListsResponse);
 
-      const ownLists = Array.isArray(ownListsResponse)
-        ? ownListsResponse
-        : Array.isArray(ownListsResponse?.data)
-        ? ownListsResponse.data
-        : [];
-
-      const assignedLists = Array.isArray(assignedListsResponse)
-        ? assignedListsResponse
-        : Array.isArray(assignedListsResponse?.data)
-        ? assignedListsResponse.data
-        : [];
+      const ownLists = normalizeListArray(ownListsResponse);
+      const assignedLists = normalizeListArray(assignedListsResponse);
 
       const normalizedOwn = ownLists.map((list) => ({
         ...list,
@@ -74,7 +85,13 @@ export default function StudentListPage() {
         source: "assigned",
       }));
 
-      const allLists = [...normalizedOwn, ...normalizedAssigned];
+      const mergedMap = new Map();
+
+      [...normalizedOwn, ...normalizedAssigned].forEach((list) => {
+        mergedMap.set(String(list.id), list);
+      });
+
+      const allLists = Array.from(mergedMap.values());
       setLists(allLists);
 
       if (selectedListId !== "all") {
@@ -91,9 +108,11 @@ export default function StudentListPage() {
         allLists.map(async (list) => {
           try {
             const full = await getListDetails(list.id);
+            const listTasks = normalizeTaskArray(full);
+
             return {
               ...list,
-              tasks: full.tasks || [],
+              tasks: listTasks,
             };
           } catch (err) {
             console.log(`Could not load tasks for list ${list.id}:`, err);
@@ -147,6 +166,16 @@ export default function StudentListPage() {
     return () => window.removeEventListener("storage", handleStorage);
   }, [loadData]);
 
+  useEffect(() => {
+    const handleListsUpdated = () => {
+      loadData();
+    };
+
+    window.addEventListener("studentListsUpdated", handleListsUpdated);
+    return () =>
+      window.removeEventListener("studentListsUpdated", handleListsUpdated);
+  }, [loadData]);
+
   const filteredTasks = useMemo(() => {
     if (selectedListId === "all") return tasks;
     return tasks.filter((task) => String(task.list_id) === String(selectedListId));
@@ -155,6 +184,7 @@ export default function StudentListPage() {
   async function handleStatusChange(task, newStatus) {
     try {
       await updateTask(task.list_id, task.id, { status: newStatus });
+      notifyListsChanged();
       await loadData();
     } catch (err) {
       alert(err.message);
@@ -168,6 +198,7 @@ export default function StudentListPage() {
       await updateTask(task.list_id, task.id, {
         todo_list_id: Number(targetListId),
       });
+      notifyListsChanged();
       await loadData();
     } catch (err) {
       alert(err.message);
@@ -177,6 +208,7 @@ export default function StudentListPage() {
   async function handleDelete(task) {
     try {
       await deleteTask(task.list_id, task.id);
+      notifyListsChanged();
       await loadData();
     } catch (err) {
       alert(err.message);
@@ -195,6 +227,7 @@ export default function StudentListPage() {
         status: editingTask.status,
       });
       setEditingTask(null);
+      notifyListsChanged();
       await loadData();
     } catch (err) {
       alert(err.message);
@@ -223,8 +256,8 @@ export default function StudentListPage() {
           </select>
         </div>
 
-        {loading && <p className="info-text">Loading tasks...</p>}
-        {error && <p className="error-text">{error}</p>}
+        {/* {loading && <p className="info-text">Loading tasks...</p>}
+        {error && <p className="error-text">{error}</p>} */}
 
         {!loading && !error && (
           <div className="task-table-wrapper">
@@ -266,8 +299,8 @@ export default function StudentListPage() {
                             }
                           >
                             <option value="incomplete">incomplete</option>
-                            <option value="in_progress">in progress</option>
-                            <option value="complete">done</option>
+                            <option value="in_progress">in-progress</option>
+                            <option value="complete">complete</option>
                           </select>
                         </td>
                         <td>{formatDueDate(task.due_date)}</td>
