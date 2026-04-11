@@ -22,8 +22,8 @@ function NavSidebar({ open, setOpen }) {
                 {isAdmin ? (
                     <>
                         <Link to="/admin/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
-                        <Link to="/admin/tasks" onClick={() => setOpen(false)}>Assigned Tasks</Link>
-                        <Link to="/admin/reminders" onClick={() => setOpen(false)}>Sent Reminders</Link>
+                        <Link to="/admin/tasks" onClick={() => setOpen(false)}>Manage Tasks</Link>
+                        <Link to="/admin/reminders" onClick={() => setOpen(false)}>Manage Reminders</Link>
                         <Link to="/admin/students" onClick={() => setOpen(false)}>Manage Users</Link>
                         <Link to="/admin/lists" onClick={() => setOpen(false)}>My Lists</Link>
                     </>

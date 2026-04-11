@@ -7,6 +7,19 @@ from permissions import admin_required, get_admin_student_relationship, is_assig
 
 todo_bp = Blueprint("lists", __name__)
 
+
+def _admin_owned_task(task_id, admin_id):
+    return (
+        db.session.query(Task.id)
+        .join(admin_students, admin_students.c.list_id == Task.todo_list_id)
+        .filter(
+            admin_students.c.admin_id == admin_id,
+            admin_students.c.student_id == Task.user_id,
+            Task.id == task_id,
+        )
+        .first()
+    )
+
 #region Todo List
 @todo_bp.route("/lists", methods=["POST"])
 @jwt_required()
@@ -419,4 +432,136 @@ def assign_task():
     if len(payload) == 1:
         return jsonify(payload[0]), 201
     return jsonify({"count": len(payload), "tasks": payload}), 201
+
+
+@todo_bp.route("/admin/tasks", methods=["GET"])
+@jwt_required()
+@admin_required
+def get_admin_tasks():
+    admin_id = int(get_jwt_identity())
+
+    rows = (
+        db.session.query(Task, User)
+        .join(admin_students, admin_students.c.list_id == Task.todo_list_id)
+        .join(User, User.id == Task.user_id)
+        .filter(
+            admin_students.c.admin_id == admin_id,
+            admin_students.c.student_id == Task.user_id,
+        )
+        .order_by(Task.due_date.asc().nulls_last(), Task.id.asc())
+        .all()
+    )
+
+    grouped = {}
+    for task, user in rows:
+        key = (
+            task.title,
+            task.description or "",
+            task.due_date.isoformat() if task.due_date else None,
+            task.priority.value,
+        )
+
+        if key not in grouped:
+            grouped[key] = {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "due_date": task.due_date.isoformat() if task.due_date else None,
+                "priority": task.priority.value,
+                "status": task.status.value,
+                "task_ids": [],
+                "users": [],
+                "status_values": set(),
+            }
+
+        grouped[key]["task_ids"].append(task.id)
+        grouped[key]["status_values"].add(task.status.value)
+        grouped[key]["users"].append(
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "status": task.status.value,
+            }
+        )
+
+    payload = []
+    for item in grouped.values():
+        statuses = item.pop("status_values")
+        item["status"] = "mixed" if len(statuses) > 1 else next(iter(statuses))
+        payload.append(item)
+
+    return jsonify(payload), 200
+
+
+@todo_bp.route("/admin/tasks/batch", methods=["PUT"])
+@jwt_required()
+@admin_required
+def edit_admin_tasks_batch():
+    admin_id = int(get_jwt_identity())
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"ERROR": "No data provided"}), 400
+
+    task_ids = data.get("task_ids")
+    if not isinstance(task_ids, list) or not task_ids:
+        return jsonify({"ERROR": "task_ids must be a non-empty list"}), 400
+
+    tasks = []
+    for raw_id in task_ids:
+        try:
+            task_id = int(raw_id)
+        except (TypeError, ValueError):
+            return jsonify({"ERROR": "task_ids must contain integers"}), 400
+
+        task = db.session.get(Task, task_id)
+        if not task:
+            return jsonify({"ERROR": f"Task {task_id} not found"}), 404
+
+        if not _admin_owned_task(task.id, admin_id):
+            return jsonify({"ERROR": "Forbidden"}), 403
+
+        tasks.append(task)
+
+    if data.get("title") is not None:
+        for task in tasks:
+            task.title = data["title"]
+
+    if data.get("description") is not None:
+        for task in tasks:
+            task.description = data["description"]
+
+    if data.get("due_date") is not None:
+        if data["due_date"] == "":
+            due = None
+        else:
+            try:
+                due = datetime.fromisoformat(data["due_date"]).replace(second=0, microsecond=0)
+            except ValueError:
+                return jsonify({"ERROR": "Invalid date format, use YYYY-MM-DDTHH:MM"}), 400
+
+        for task in tasks:
+            task.due_date = due
+
+    if data.get("priority") is not None:
+        try:
+            priority = TaskPriority(data["priority"])
+        except ValueError:
+            return jsonify({"ERROR": "Invalid priority"}), 400
+
+        for task in tasks:
+            task.priority = priority
+
+    if data.get("status") is not None:
+        try:
+            status = TaskStatus(data["status"])
+        except ValueError:
+            return jsonify({"ERROR": "Invalid status"}), 400
+
+        for task in tasks:
+            task.status = status
+
+    db.session.commit()
+
+    return jsonify({"count": len(tasks)}), 200
 #endregion

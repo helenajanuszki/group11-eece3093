@@ -1,0 +1,173 @@
+.at-page {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.at-shell {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.at-header {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.at-card {
+  background: rgba(10, 40, 80, 0.55);
+  border: 2px solid rgba(100, 200, 255, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+  color: #dff4ff;
+}
+
+.at-title {
+  margin: 0 0 10px;
+  color: #dff4ff;
+}
+
+.at-form {
+  display: grid;
+  gap: 8px;
+}
+
+.at-input {
+  background: rgba(180, 220, 255, 0.12);
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  color: #dff4ff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+select.at-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: rgba(10, 40, 80, 0.85);
+  color: #dff4ff;
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  padding-right: 2rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #dff4ff 50%),
+    linear-gradient(135deg, #dff4ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 3px),
+    calc(100% - 10px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+select.at-input option {
+  background-color: #0d2e52;
+  color: #dff4ff;
+}
+
+.at-input:focus,
+select.at-input:focus {
+  outline: none;
+  border-color: rgba(130, 210, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
+}
+
+.at-btn {
+  width: fit-content;
+  border: 1px solid rgba(100, 200, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(80, 180, 255, 0.22);
+  color: #e6f6ff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.at-target-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.at-target-row label,
+.at-user-checklist label {
+  color: #e6f6ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.at-user-checklist {
+  max-height: 140px;
+  overflow: auto;
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  background: rgba(10, 40, 80, 0.35);
+}
+
+.at-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.at-task-item {
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(170, 220, 255, 0.08);
+  display: grid;
+  gap: 6px;
+}
+
+.at-task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.at-note {
+  color: #dff4ff;
+  margin-top: 8px;
+}
+
+.at-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 20, 40, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.at-modal {
+  width: min(560px, 100%);
+  background: rgba(10, 40, 80, 0.95);
+  border: 2px solid rgba(100, 200, 255, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  position: relative;
+}
+
+.at-close {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  border: none;
+  background: transparent;
+  color: #d0eeff;
+  font-size: 22px;
+  cursor: pointer;
+}

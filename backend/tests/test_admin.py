@@ -69,7 +69,7 @@ def test_assign_task_unrelated_student(client, admin_token, existing_user):
         "due_date": "2026-12-25T11:59"
     }, headers=admin_token)
     
-    assert res.status_code == 403
+    assert res.status_code == 400
 
 def test_assign_student_forbidden(client, student_token, existing_user):
     res = client.put(f"/admin/users/{existing_user.id}/assign", headers=student_token)

@@ -8,7 +8,7 @@ import MoodEntriesPage from "./Journal"
 
 import AdminDashboard from "./AdminDashboard"
 import AdminStudents from "./AdminStudents"
-// import AdminTasksPage from "./AdminTasksPage"
+import AdminTasksPage from "./AdminTasks"
 // import AdminRemindersPage from "./AdminRemindersPage"
 // import AdminListsPage from "./AdminListsPage"
 
@@ -76,8 +76,8 @@ function App() {
             </AdminRoute>
           }
         />
-
-        {/* <Route
+        
+        <Route
           path="/admin/tasks"
           element={
             <AdminRoute>
@@ -88,6 +88,7 @@ function App() {
             </AdminRoute>
           }
         />
+        {/* 
 
         <Route
           path="/admin/reminders"
