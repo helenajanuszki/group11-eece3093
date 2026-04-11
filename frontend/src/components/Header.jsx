@@ -10,40 +10,39 @@ function Header() {
 
     const SHARK = "/shark.png"
 
-    const [username] = useState(() => {
+    const [userInfo] = useState(() => {
         const savedUser = localStorage.getItem("user")
-        if (!savedUser) return "User"
+        if (!savedUser) return { username: "User", role: "" }
 
         try {
             const parsedUser = JSON.parse(savedUser)
-            return parsedUser.username || "User"
+            return {
+                username: parsedUser.username || "User",
+                role: String(parsedUser.role || "").toLowerCase(),
+            }
         } catch {
-            return "User"
+            return { username: "User", role: "" }
         }
     })
+
+    const dashboardPath = userInfo.role === "admin" ? "/admin/dashboard" : "/dashboard"
 
     const handleLogout = () => {
         localStorage.removeItem("token")
         localStorage.removeItem("user")
-
-        navigate("/") 
+        navigate("/")
     }
 
     return (
         <>
             <header className="app-header">
                 <div className="header-left">
-                    <button
-                        className="hamburger"
-                        onClick={() => setOpen(!open)}
-                    >
+                    <button className="hamburger" onClick={() => setOpen(!open)}>
                         ☰
                     </button>
 
-                    <Link to="/dashboard" className="header-title">
-                        <h1 className="header-title">
-                            Welcome, {username}
-                        </h1>
+                    <Link to={dashboardPath} className="header-title">
+                        <h1 className="header-title">Welcome, {userInfo.username}</h1>
                     </Link>
                 </div>
 
@@ -57,9 +56,7 @@ function Header() {
 
                     {showMenu && (
                         <div className="profile-dropdown">
-                            <button onClick={handleLogout}>
-                                Logout
-                            </button>
+                            <button onClick={handleLogout}>Logout</button>
                         </div>
                     )}
                 </div>

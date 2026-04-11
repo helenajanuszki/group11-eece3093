@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from config import db
-from models import TodoList, Task, User, TaskPriority, TaskStatus
+from models import TodoList, Task, User, TaskPriority, TaskStatus, admin_students
 from datetime import datetime
 from permissions import admin_required, get_admin_student_relationship, is_assigned_task
 
@@ -40,6 +40,34 @@ def get_all_lists():
     lists = TodoList.query.filter_by(user_id=user_id).all()
 
     return jsonify([todo_list.to_json() for todo_list in lists]), 200
+
+@todo_bp.route("/lists/assigned", methods=["GET"])
+@jwt_required()
+def get_assigned_lists():
+    user_id = int(get_jwt_identity())
+
+    rows = (
+        db.session.query(
+            TodoList,
+            User.id.label("admin_id"),
+            User.username.label("admin_username"),
+        )
+        .join(admin_students, admin_students.c.list_id == TodoList.id)
+        .join(User, User.id == admin_students.c.admin_id)
+        .filter(admin_students.c.student_id == user_id)
+        .all()
+    )
+
+    result = []
+    for todo_list, admin_id, admin_username in rows:
+        item = todo_list.to_json()
+        item["assigned_by"] = {
+            "id": admin_id,
+            "username": admin_username,
+        }
+        result.append(item)
+
+    return jsonify(result), 200
 
 @todo_bp.route("/lists/<int:id>", methods=["GET"])
 @jwt_required()
@@ -195,8 +223,14 @@ def edit_task(list_id, task_id):
         return jsonify({"ERROR": "Task not found"}), 404
     if task.todo_list_id != list_id:
         return jsonify({"ERROR": "Task does not belong to list"}), 400
-    if is_assigned_task(task) and not current_user.is_admin():
-        return jsonify({"ERROR": "Cannot modify admin-assigned tasks"}), 403
+
+    assigned_task = is_assigned_task(task)
+    is_admin = current_user.is_admin()
+
+    if assigned_task and not is_admin:
+        non_status_fields = {"title", "description", "due_date", "priority", "todo_list_id"}
+        if any(field in data for field in non_status_fields):
+            return jsonify({"ERROR": "Can only change status for admin-assigned tasks"}), 403
 
     if data.get("title") is not None:
         task.title = data["title"]
@@ -222,6 +256,12 @@ def edit_task(list_id, task_id):
             return jsonify({"ERROR": "Invalid priority"}), 400
         else:
             task.priority = priority
+
+    if data.get("status") is not None:
+        try:
+            task.status = TaskStatus(data["status"])
+        except ValueError:
+            return jsonify({"ERROR": "Invalid status"}), 400
     
     todo_list_id = data.get("todo_list_id")
     if todo_list_id:
@@ -256,8 +296,10 @@ def delete_task(list_id, task_id):
         return jsonify({"ERROR": "Task not found"}), 404
     if task.todo_list_id != list_id:
         return jsonify({"ERROR": "Task does not belong to list"}), 400
+
     if is_assigned_task(task) and not current_user.is_admin():
-        return jsonify({"ERROR": "Cannot modify admin-assigned tasks"}), 403
+        if task.status != TaskStatus.complete:
+            return jsonify({"ERROR": "Admin-assigned tasks can only be deleted when complete"}), 403
 
     db.session.delete(task)
     db.session.commit()
@@ -288,6 +330,7 @@ def task_complete(list_id, task_id):
 
     return jsonify(task.to_json()), 200
 
+@todo_bp.route("/admin/tasks", methods=["POST"])
 @todo_bp.route("/tasks", methods=["POST"])
 @jwt_required()
 @admin_required
@@ -297,21 +340,6 @@ def assign_task():
         return jsonify({"ERROR": "No data provided"}), 400
 
     admin_id = int(get_jwt_identity())
-
-    if data.get("user_id") is None:
-        return jsonify({"ERROR": "user_id is required"}), 400
-
-    assigned_user = db.session.get(User, int(data["user_id"]))
-    if not assigned_user:
-        return jsonify({"ERROR": "Assigned user not found"}), 404
-    
-    relationship = get_admin_student_relationship(admin_id, assigned_user.id)
-    if not relationship:
-        return jsonify({"ERROR": "Forbidden"}), 403
-
-    dedicated_list = db.session.get(TodoList, relationship.list_id)
-    if not dedicated_list:
-        return jsonify({"ERROR": "No dedicated list found for this student"}), 404
 
     if not data.get("title"):
         return jsonify({"ERROR": "Task must have a title"}), 400
@@ -331,18 +359,64 @@ def assign_task():
         except ValueError:
             return jsonify({"ERROR": "Invalid priority"}), 400
 
-    new_task = Task(
-        title=data["title"],
-        description=data.get("description"),
-        due_date=due,
-        status=TaskStatus.incomplete,
-        priority=priority,
-        user_id=assigned_user.id,
-        todo_list_id=dedicated_list.id
-    )
+    target_ids = set()
+    if data.get("all_students") is True:
+        rows = (
+            db.session.query(admin_students.c.student_id)
+            .filter(admin_students.c.admin_id == admin_id)
+            .all()
+        )
+        target_ids = {int(r.student_id) for r in rows}
+    elif isinstance(data.get("user_ids"), list):
+        try:
+            target_ids = {int(x) for x in data["user_ids"]}
+        except (TypeError, ValueError):
+            return jsonify({"ERROR": "user_ids must be a list of integers"}), 400
+    elif data.get("user_id") is not None:
+        try:
+            target_ids = {int(data["user_id"])}
+        except (TypeError, ValueError):
+            return jsonify({"ERROR": "user_id must be an integer"}), 400
+    else:
+        return jsonify({"ERROR": "Provide one of: user_id, user_ids, all_students=true"}), 400
 
-    db.session.add(new_task)
+    if not target_ids:
+        return jsonify({"ERROR": "No students selected"}), 400
+
+    created_tasks = []
+
+    for student_id in target_ids:
+        assigned_user = db.session.get(User, student_id)
+        if not assigned_user:
+            continue
+
+        relationship = get_admin_student_relationship(admin_id, assigned_user.id)
+        if not relationship:
+            continue
+
+        dedicated_list = db.session.get(TodoList, relationship.list_id)
+        if not dedicated_list:
+            continue
+
+        new_task = Task(
+            title=data["title"],
+            description=data.get("description"),
+            due_date=due,
+            status=TaskStatus.incomplete,
+            priority=priority,
+            user_id=assigned_user.id,
+            todo_list_id=dedicated_list.id
+        )
+        db.session.add(new_task)
+        created_tasks.append(new_task)
+
+    if not created_tasks:
+        return jsonify({"ERROR": "No valid assigned students found"}), 400
+
     db.session.commit()
 
-    return jsonify(new_task.to_json()), 201
+    payload = [t.to_json() for t in created_tasks]
+    if len(payload) == 1:
+        return jsonify(payload[0]), 201
+    return jsonify({"count": len(payload), "tasks": payload}), 201
 #endregion

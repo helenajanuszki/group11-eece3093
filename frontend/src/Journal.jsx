@@ -157,10 +157,6 @@ function MoodEntriesPage() {
             return
         }
 
-        if (!selectedContent.trim()) {
-            setError("Please enter journal content")
-            return
-        }
 
         const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`
 

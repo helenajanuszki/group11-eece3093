@@ -1,0 +1,182 @@
+.ad-page {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.ad-shell {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.ad-header {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.ad-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.ad-card {
+  background: rgba(10, 40, 80, 0.55);
+  border: 2px solid rgba(100, 200, 255, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.ad-card-title {
+  color: #dff4ff;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.ad-form {
+  display: grid;
+  gap: 8px;
+}
+
+.ad-input {
+  background: rgba(180, 220, 255, 0.12);
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  color: #dff4ff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.ad-btn {
+  width: fit-content;
+  border: 1px solid rgba(100, 200, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(80, 180, 255, 0.22);
+  color: #e6f6ff;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.ad-msg {
+  margin-top: 10px;
+  color: #dff4ff;
+}
+
+.ad-target-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ad-student-checklist {
+  max-height: 140px;
+  overflow: auto;
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+select.ad-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: rgba(10, 40, 80, 0.85);
+  color: #dff4ff;
+  border: 1px solid rgba(100, 200, 255, 0.35);
+  padding-right: 2rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #dff4ff 50%),
+    linear-gradient(135deg, #dff4ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 3px),
+    calc(100% - 10px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+select.ad-input option {
+  background-color: #0d2e52;
+  color: #dff4ff;
+}
+
+select.ad-input:focus,
+.ad-input:focus {
+  outline: none;
+  border-color: rgba(130, 210, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
+}
+
+.ad-target-row label,
+.ad-student-checklist label {
+  color: #e6f6ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* radio + checkbox theme */
+.ad-target-row input[type="radio"],
+.ad-student-checklist input[type="checkbox"] {
+  accent-color: #7fd3ff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* make checklist container match card style better */
+.ad-student-checklist {
+  background: rgba(10, 40, 80, 0.35);
+  color: #e6f6ff;
+}
+
+.ad-student-checklist label {
+  padding: 4px 2px;
+}
+
+.ad-grid-single {
+  grid-template-columns: 1fr;
+  margin-top: 12px;
+}
+
+.ad-students-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ad-student-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  border-radius: 10px;
+  background: rgba(170, 220, 255, 0.08);
+  color: #e6f6ff;
+}
+
+.ad-student-item span {
+  opacity: 0.95;
+}
+
+@media (max-width: 900px) {
+  .ad-grid {
+    grid-template-columns: 1fr;
+  }
+}
