@@ -125,17 +125,32 @@ def edit_reminder(id):
 
 @reminder_bp.route("/reminders/<int:id>", methods=["DELETE"])
 @jwt_required()
-@admin_required
 def delete_reminder(id):
     reminder = db.session.get(Reminder, id)
     if not reminder:
         return jsonify({"ERROR": "Reminder not found"}), 404
     
     user_id = int(get_jwt_identity())
-    if reminder.creator != user_id:
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"ERROR": "User not found"}), 404
+
+    if user.is_admin():
+        if reminder.creator != user_id:
+            return jsonify({"ERROR": "Forbidden"}), 403
+        db.session.delete(reminder)
+        db.session.commit()
+        return "", 204
+
+    recipient_ids = {u.id for u in reminder.recipients}
+    if user_id not in recipient_ids:
         return jsonify({"ERROR": "Forbidden"}), 403
-    
-    db.session.delete(reminder)
+
+    reminder.recipients = [u for u in reminder.recipients if u.id != user_id]
+    # Avoid making an assigned reminder become broadcast when no recipients remain.
+    if len(reminder.recipients) == 0:
+        db.session.delete(reminder)
+
     db.session.commit()
 
     return "", 204

@@ -1,4 +1,4 @@
-.at-page {
+.ar-page {
   min-height: 100vh;
   background-size: cover;
   background-position: center;
@@ -7,18 +7,18 @@
   justify-content: center;
 }
 
-.at-shell {
+.ar-shell {
   width: 100%;
   max-width: 1100px;
 }
 
-.at-header {
+.ar-header {
   color: #fff;
   font-size: 2rem;
   margin-bottom: 12px;
 }
 
-.at-card {
+.ar-card {
   background: rgba(10, 40, 80, 0.55);
   border: 2px solid rgba(100, 200, 255, 0.25);
   border-radius: 14px;
@@ -27,17 +27,17 @@
   color: #dff4ff;
 }
 
-.at-title {
+.ar-title {
   margin: 0 0 10px;
   color: #dff4ff;
 }
 
-.at-form {
+.ar-form {
   display: grid;
   gap: 8px;
 }
 
-.at-input {
+.ar-input {
   background: rgba(180, 220, 255, 0.12);
   border: 1px solid rgba(100, 200, 255, 0.35);
   color: #dff4ff;
@@ -45,7 +45,7 @@
   padding: 10px;
 }
 
-select.at-input {
+select.ar-input {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -63,19 +63,19 @@ select.at-input {
   background-repeat: no-repeat;
 }
 
-select.at-input option {
+select.ar-input option {
   background-color: #0d2e52;
   color: #dff4ff;
 }
 
-.at-input:focus,
-select.at-input:focus {
+.ar-input:focus,
+select.ar-input:focus {
   outline: none;
   border-color: rgba(130, 210, 255, 0.8);
   box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
 }
 
-.at-btn {
+.ar-btn {
   width: fit-content;
   border: 1px solid rgba(100, 200, 255, 0.45);
   border-radius: 8px;
@@ -85,27 +85,27 @@ select.at-input:focus {
   cursor: pointer;
 }
 
-.at-btn-danger {
+.ar-btn-danger {
   border-color: rgba(255, 120, 120, 0.55);
   background: rgba(255, 80, 80, 0.2);
 }
 
-.at-target-row {
+.ar-target-row {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.at-target-row label,
-.at-user-checklist label {
+.ar-target-row label,
+.ar-user-checklist label {
   color: #e6f6ff;
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.at-user-checklist {
-  max-height: 140px;
+.ar-user-checklist {
+  max-height: 160px;
   overflow: auto;
   border: 1px solid rgba(100, 200, 255, 0.25);
   border-radius: 10px;
@@ -115,7 +115,7 @@ select.at-input:focus {
   background: rgba(10, 40, 80, 0.35);
 }
 
-.at-task-list {
+.ar-reminder-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -124,33 +124,34 @@ select.at-input:focus {
   gap: 10px;
 }
 
-.at-task-item {
+.ar-reminder-item {
   border: 1px solid rgba(100, 200, 255, 0.25);
   border-radius: 10px;
   padding: 10px;
   background: rgba(170, 220, 255, 0.08);
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto;
   gap: 6px;
   aspect-ratio: 1 / 1;
+  align-content: space-between;
   cursor: pointer;
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
-.at-task-item:hover {
+.ar-reminder-item:hover {
   transform: translateY(-2px);
   border-color: rgba(130, 210, 255, 0.55);
   background: rgba(170, 220, 255, 0.12);
 }
 
-.at-task-top {
+.ar-reminder-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
 }
 
-.at-task-title {
+.ar-reminder-title {
   display: block;
   line-height: 1.2;
   overflow: hidden;
@@ -161,7 +162,7 @@ select.at-input:focus {
   -webkit-box-orient: vertical;
 }
 
-.at-task-desc {
+.ar-reminder-desc {
   font-size: 0.86rem;
   color: #cde9ff;
   overflow: hidden;
@@ -172,16 +173,7 @@ select.at-input:focus {
   -webkit-box-orient: vertical;
 }
 
-.at-task-users-count {
-  font-size: 0.8rem;
-  color: #e5f4ff;
-  opacity: 0.9;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.at-task-actions {
+.ar-reminder-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -190,7 +182,7 @@ select.at-input:focus {
   flex-wrap: nowrap;
 }
 
-.at-mini-btn {
+.ar-mini-btn {
   flex: 1 1 0;
   font-size: 0.76rem;
   padding: 6px 7px;
@@ -198,17 +190,12 @@ select.at-input:focus {
   white-space: nowrap;
 }
 
-.at-task-meta {
-  font-size: 0.8rem;
-  color: #d4efff;
-}
-
-.at-note {
+.ar-note {
   color: #dff4ff;
   margin-top: 8px;
 }
 
-.at-modal-overlay {
+.ar-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 20, 40, 0.65);
@@ -219,7 +206,7 @@ select.at-input:focus {
   padding: 16px;
 }
 
-.at-modal {
+.ar-modal {
   width: min(560px, 100%);
   background: rgba(10, 40, 80, 0.95);
   border: 2px solid rgba(100, 200, 255, 0.35);
@@ -230,7 +217,7 @@ select.at-input:focus {
   position: relative;
 }
 
-.at-close {
+.ar-close {
   position: absolute;
   right: 8px;
   top: 6px;
@@ -241,76 +228,35 @@ select.at-input:focus {
   cursor: pointer;
 }
 
-.at-view-row,
-.at-view-label {
+.ar-view-row {
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.ar-view-label {
   color: #ffffff;
 }
 
-.at-delete-title {
-  margin: 0;
-  color: #dff4ff;
-  text-transform: lowercase;
-}
-
-.at-delete-text {
-  margin: 0;
-  color: #cfeeff;
-  text-transform: lowercase;
-}
-
-.at-delete-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.at-delete-confirm,
-.at-delete-cancel {
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  text-transform: lowercase;
-}
-
-.at-delete-confirm {
-  border-color: rgba(255, 120, 120, 0.55);
-  background: rgba(255, 80, 80, 0.25);
-  color: #ffe8e8;
-}
-
-.at-delete-cancel {
-  border-color: rgba(100, 200, 255, 0.45);
-  background: rgba(80, 180, 255, 0.22);
-  color: #e6f6ff;
-}
-
-.at-delete-confirm:disabled,
-.at-delete-cancel:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
 @media (max-width: 1200px) {
-  .at-task-list {
+  .ar-reminder-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
-  .at-task-list {
+  .ar-reminder-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .at-task-list {
+  .ar-reminder-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 420px) {
-  .at-task-list {
+  .ar-reminder-list {
     grid-template-columns: 1fr;
   }
 }

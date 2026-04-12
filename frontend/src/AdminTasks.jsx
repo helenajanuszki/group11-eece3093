@@ -40,6 +40,9 @@ export default function AdminTasksPage() {
 		status: "incomplete",
 	})
 	const [savingEdit, setSavingEdit] = useState(false)
+	const [viewingTask, setViewingTask] = useState(null)
+	const [deletingTask, setDeletingTask] = useState(null)
+	const [deleting, setDeleting] = useState(false)
 
 	const loadUsers = useCallback(async () => {
 		const res = await apiCall("/admin/users", { method: "GET" })
@@ -144,6 +147,46 @@ export default function AdminTasksPage() {
 
 	const closeEdit = () => setEditingTask(null)
 
+	const openView = (taskGroup) => setViewingTask(taskGroup)
+
+	const closeView = () => setViewingTask(null)
+
+	const openDelete = (taskGroup) => setDeletingTask(taskGroup)
+
+	const closeDelete = () => {
+		if (deleting) return
+		setDeletingTask(null)
+	}
+
+	const confirmDelete = async () => {
+		if (!deletingTask) return
+
+		setDeleting(true)
+		setMsg("")
+		try {
+			const res = await apiCall("/admin/tasks/batch", {
+				method: "DELETE",
+				body: JSON.stringify({
+					task_ids: deletingTask.task_ids,
+				}),
+			})
+
+			const data = await res.json().catch(() => ({}))
+			if (!res.ok) throw new Error(data.ERROR || "Failed to delete task")
+
+			if (viewingTask?.id === deletingTask.id) {
+				setViewingTask(null)
+			}
+			setDeletingTask(null)
+			setMsg("Task deleted.")
+			await loadTasks()
+		} catch (e) {
+			setMsg(e.message || "Failed to delete task")
+		} finally {
+			setDeleting(false)
+		}
+	}
+
 	const handleSaveEdit = async () => {
 		if (!editingTask) return
 		setSavingEdit(true)
@@ -231,17 +274,52 @@ export default function AdminTasksPage() {
 
 					<ul className="at-task-list">
 						{tasks.map((task) => (
-							<li key={`${task.id}-${task.task_ids?.join("-")}`} className="at-task-item">
+							<li
+								key={`${task.id}-${task.task_ids?.join("-")}`}
+								className="at-task-item"
+								onClick={() => openView(task)}
+							>
 								<div className="at-task-top">
-									<strong>{task.title}</strong>
-									<button className="at-btn" type="button" onClick={() => openEdit(task)}>Edit</button>
+									<strong className="at-task-title">{task.title}</strong>
 								</div>
-								<div>{task.description || "No description"}</div>
-								<div>Due: {formatDateTime(task.due_date)}</div>
-								<div>Priority: {task.priority}</div>
-								<div>Status: {task.status === "mixed" ? "mixed (varies by user)" : task.status}</div>
-								<div>
-									Assigned users: {task.users?.map((u) => `${u.username} (${u.email}) - ${u.status}`).join(", ") || "-"}
+								<div className="at-task-desc">{task.description || "No description"}</div>
+								<div className="at-task-meta">
+									Due: {formatDateTime(task.due_date)}
+								</div>
+								<div className="at-task-users-count">
+									Assigned users: {task.users?.length || 0}
+								</div>
+								<div className="at-task-actions">
+									<button
+										className="at-btn at-mini-btn"
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation()
+											openView(task)
+										}}
+									>
+										View
+									</button>
+									<button
+										className="at-btn at-mini-btn"
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation()
+											openEdit(task)
+										}}
+									>
+										Edit
+									</button>
+									<button
+										className="at-btn at-btn-danger at-mini-btn"
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation()
+											openDelete(task)
+										}}
+									>
+										Delete
+									</button>
 								</div>
 							</li>
 						))}
@@ -275,6 +353,54 @@ export default function AdminTasksPage() {
 							<button className="at-btn" type="button" onClick={handleSaveEdit} disabled={savingEdit}>
 								{savingEdit ? "Saving..." : "Save Changes"}
 							</button>
+						</div>
+					</div>
+				)}
+
+				{viewingTask && (
+					<div className="at-modal-overlay" onClick={closeView}>
+						<div className="at-modal" onClick={(e) => e.stopPropagation()}>
+							<button className="at-close" type="button" onClick={closeView}>x</button>
+							<h3 className="at-title">View Task</h3>
+
+							<div className="at-view-row"><strong className="at-view-label">Title:</strong> {viewingTask.title}</div>
+							<div className="at-view-row"><strong className="at-view-label">Description:</strong> {viewingTask.description || "No description"}</div>
+							<div className="at-view-row"><strong className="at-view-label">Due:</strong> {formatDateTime(viewingTask.due_date)}</div>
+							<div className="at-view-row"><strong className="at-view-label">Priority:</strong> {viewingTask.priority}</div>
+							<div className="at-view-row"><strong className="at-view-label">Status:</strong> {viewingTask.status === "mixed" ? "mixed (varies by user)" : viewingTask.status}</div>
+							<div className="at-view-row">
+								<strong className="at-view-label">Assigned users:</strong>{" "}
+								{viewingTask.users?.map((u) => `${u.username} (${u.email}) - ${u.status}`).join(", ") || "-"}
+							</div>
+						</div>
+					</div>
+				)}
+
+				{deletingTask && (
+					<div className="at-modal-overlay" onClick={closeDelete}>
+						<div className="at-modal" onClick={(e) => e.stopPropagation()}>
+							<h2 className="at-delete-title">delete task?</h2>
+							<p className="at-delete-text">delete &quot;{deletingTask.title}&quot; for all assigned users?</p>
+
+							<div className="at-delete-actions">
+								<button
+									className="at-delete-confirm"
+									onClick={confirmDelete}
+									type="button"
+									disabled={deleting}
+								>
+									{deleting ? "deleting..." : "confirm"}
+								</button>
+
+								<button
+									className="at-delete-cancel"
+									onClick={closeDelete}
+									type="button"
+									disabled={deleting}
+								>
+									cancel
+								</button>
+							</div>
 						</div>
 					</div>
 				)}
