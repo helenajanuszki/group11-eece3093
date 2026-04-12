@@ -34,6 +34,24 @@
   margin-bottom: 12px;
 }
 
+.as-filter-row {
+  margin-bottom: 12px;
+}
+
+.as-filter-row label {
+  color: #e6f6ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.as-filter-row input[type="checkbox"] {
+  accent-color: #7fd3ff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 .as-input {
   width: 100%;
   background: rgba(180, 220, 255, 0.12);

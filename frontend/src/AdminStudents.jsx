@@ -7,6 +7,7 @@ const BG = "/background-faded-blue.avif"
 export default function AdminStudents() {
   const [q, setQ] = useState("")
   const [students, setStudents] = useState([])
+  const [assignedOnly, setAssignedOnly] = useState(false)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState("")
 
@@ -36,9 +37,9 @@ export default function AdminStudents() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.ERROR || "Failed to assign user")
       await loadStudents(q)
-      setMsg("Student assigned.")
+      setMsg("User assigned.")
     } catch (e) {
-      setMsg(e.message || "Failed to assign student")
+      setMsg(e.message || "Failed to assign user")
     }
   }
   const unassignStudent = async (id) => {
@@ -48,11 +49,15 @@ export default function AdminStudents() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.ERROR || "Failed to unassign user")
       await loadStudents(q)
-      setMsg("Student unassigned.")
+      setMsg("User unassigned.")
     } catch (e) {
-      setMsg(e.message || "Failed to unassign student")
+      setMsg(e.message || "Failed to unassign user")
     }
   }
+
+  const visibleStudents = assignedOnly
+    ? students.filter((s) => s.assigned_to_me)
+    : students
 
   return (
     <main className="as-page" style={{ backgroundImage: `url(${BG})` }}>
@@ -72,11 +77,22 @@ export default function AdminStudents() {
             </button>
           </div>
 
+          <div className="as-filter-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={assignedOnly}
+                onChange={(e) => setAssignedOnly(e.target.checked)}
+              />
+              Show only users assigned to me
+            </label>
+          </div>
+
           {loading ? <p className="as-note">Loading...</p> : null}
           {msg ? <p className="as-note">{msg}</p> : null}
 
           <ul className="as-list">
-        {students.map((s) => (
+        {visibleStudents.map((s) => (
         <li key={s.id} className="as-item">
             <div>
             <strong>{s.username}</strong>
