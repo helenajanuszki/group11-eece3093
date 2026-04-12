@@ -10,7 +10,7 @@ import StudentRemindersPage from "./StudentReminders"
 import AdminDashboard from "./AdminDashboard"
 import AdminStudents from "./AdminStudents"
 import AdminTasksPage from "./AdminTasks"
-import StudentListPage from "./StudentList"
+import ListPage from "./List"
 import AdminRemindersPage from "./AdminReminders"
 
 
@@ -67,9 +67,21 @@ function App() {
             <StudentRoute>
               <>
                 <Header />
-                <StudentListPage />
+                <ListPage />
               </>
             </StudentRoute>
+          }
+        />
+
+        <Route
+          path="/admin/lists"
+          element={
+            <AdminRoute>
+              <>
+                <Header />
+                <ListPage />
+              </>
+            </AdminRoute>
           }
         />
 
