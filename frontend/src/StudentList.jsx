@@ -8,6 +8,9 @@ import {
   deleteTask,
 } from "./api/taskApi";
 import "./styles/lists.css";
+import apiCall from "./api/client";
+import { FaTrashAlt, FaEdit } from "react-icons/fa"
+
 
 function formatDueDate(dateStr) {
   if (!dateStr) return "-";
@@ -234,7 +237,78 @@ export default function StudentListPage() {
     }
   }
 
+  const [showAddList, setShowAddList] = useState(false);
+  const [newListName, setNewListName] = useState("");
+
+  async function handleCreateList() {
+    if (!newListName.trim()) return;
+
+    try {
+        await apiCall("/lists", {
+        method: "POST",
+        body: JSON.stringify({
+            name: newListName,
+            description: "",
+        }),
+        });
+
+        setNewListName("");
+        setShowAddList(false);
+        notifyListsChanged();
+        await loadData();
+    } catch (err) {
+        alert(err.message);
+        }
+    }
+
+    async function handleDeleteList(listId) {
+        if (!window.confirm("Delete this list?")) return;
+
+        try {
+            await apiCall(`/lists/${listId}`, {
+            method: "DELETE",
+            });
+
+            notifyListsChanged();
+            await loadData();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
   const ownListsOnly = lists.filter((list) => list.source === "own");
+
+  const [showAddTask, setShowAddTask] = useState(false);
+    const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    due_date: "",
+    priority: "low",
+    });
+
+    async function handleCreateTask() {
+    if (!newTask.title.trim() || selectedListId === "all") return;
+
+    try {
+        await apiCall(`/lists/${selectedListId}/tasks`, {
+        method: "POST",
+        body: JSON.stringify(newTask),
+        });
+
+        setNewTask({
+        title: "",
+        description: "",
+        due_date: "",
+        priority: "low",
+        });
+
+        setShowAddTask(false);
+        notifyListsChanged();
+        await loadData();
+    } catch (err) {
+        alert(err.message);
+    }
+    }
 
   return (
     <div className="task-page" style={{ backgroundImage: `url(${BG})` }}>
@@ -242,22 +316,47 @@ export default function StudentListPage() {
         <div className="task-header">
           <h1>Task List</h1>
 
-          <select
-            className="task-filter"
-            value={selectedListId}
-            onChange={(e) => setSelectedListId(e.target.value)}
-          >
-            <option value="all">All Lists</option>
-            {lists.map((list) => (
-              <option key={list.id} value={list.id}>
-                {list.name} {list.source === "assigned" ? "(assigned)" : ""}
-              </option>
-            ))}
-          </select>
+          <div className="task-header-actions">
+            <button className="small-btn" onClick={() => setShowAddList(true)}>
+                + List
+            </button>
+
+            {selectedListId !== "all" && (
+                <button
+                    className="small-btn danger"
+                    onClick={() => handleDeleteList(selectedListId)}
+                >
+                    <FaTrashAlt />
+                </button>
+            )}
+
+            <select
+                className="task-filter"
+                value={selectedListId}
+                onChange={(e) => setSelectedListId(e.target.value)}
+            >
+                <option value="all">All Lists</option>
+                {lists.map((list) => (
+                    <option key={list.id} value={list.id}>
+                        {list.name}
+                    </option>
+                ))}
+                </select>
+            </div>
         </div>
 
-        {/* {loading && <p className="info-text">Loading tasks...</p>}
-        {error && <p className="error-text">{error}</p>} */}
+        <div className="task-toolbar">
+            <button
+                className="small-btn"
+                disabled={selectedListId === "all"}
+                onClick={() => setShowAddTask(true)}
+            >
+                + Task
+            </button>
+        </div>
+
+        {loading && <p className="info-text">Loading tasks...</p>}
+        {error && <p className="error-text">{error}</p>}
 
         {!loading && !error && (
           <div className="task-table-wrapper">
@@ -298,9 +397,9 @@ export default function StudentListPage() {
                               handleStatusChange(task, e.target.value)
                             }
                           >
-                            <option value="incomplete">incomplete</option>
-                            <option value="in_progress">in-progress</option>
-                            <option value="complete">complete</option>
+                            <option value="incomplete">Incomplete</option>
+                            <option value="in_progress">In-progress</option>
+                            <option value="complete">Complete</option>
                           </select>
                         </td>
                         <td>{formatDueDate(task.due_date)}</td>
@@ -313,7 +412,7 @@ export default function StudentListPage() {
                               handleMoveTask(task, e.target.value)
                             }
                           >
-                            <option value="">move</option>
+                            <option value="">Move</option>
                             {ownListsOnly.map((list) => (
                               <option key={list.id} value={list.id}>
                                 {list.name}
@@ -332,14 +431,14 @@ export default function StudentListPage() {
                                 })
                               }
                             >
-                              Edit
+                              <FaEdit />
                             </button>
                           )}
                           <button
                             className="small-btn danger"
                             onClick={() => handleDelete(task)}
                           >
-                            Delete
+                            <FaTrashAlt />
                           </button>
                         </td>
                       </tr>
@@ -351,6 +450,86 @@ export default function StudentListPage() {
           </div>
         )}
       </div>
+
+      {showAddList && (
+        <div className="modal-overlay">
+            <div className="modal-card">
+                <h2>Add List</h2>
+
+            <input
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                placeholder="List name"
+            />
+
+            <div className="modal-actions">
+                <button className="small-btn" onClick={handleCreateList}>
+                Create
+                </button>
+                <button
+                className="small-btn danger"
+                onClick={() => setShowAddList(false)}
+                >
+                Cancel
+                </button>
+            </div>
+            </div>
+        </div>
+      )}
+      {showAddTask && (
+        <div className="modal-overlay">
+            <div className="modal-card">
+            <h2>Add Task</h2>
+
+            <input
+                placeholder="Title"
+                value={newTask.title}
+                onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, title: e.target.value }))
+                }
+            />
+
+            <textarea
+                placeholder="Description"
+                value={newTask.description}
+                onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, description: e.target.value }))
+                }
+            />
+
+            <input
+                type="datetime-local"
+                value={newTask.due_date}
+                onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, due_date: e.target.value }))
+                }
+            />
+
+            <select
+                value={newTask.priority}
+                onChange={(e) =>
+                setNewTask((prev) => ({ ...prev, priority: e.target.value }))
+                }
+            >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+
+            <div className="modal-actions">
+                <button className="small-btn" onClick={handleCreateTask}>
+                Create
+                </button>
+                <button
+                className="small-btn danger"
+                onClick={() => setShowAddTask(false)}
+                >
+                Cancel
+                </button>
+            </div>
+            </div>
+        </div>
+      )}
 
       {editingTask && (
         <div className="modal-overlay">
@@ -399,9 +578,9 @@ export default function StudentListPage() {
                   }))
                 }
               >
-                <option value="low">low</option>
-                <option value="medium">medium</option>
-                <option value="high">high</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
 
               <select
