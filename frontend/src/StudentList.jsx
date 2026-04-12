@@ -262,7 +262,6 @@ export default function StudentListPage() {
     }
 
     async function handleDeleteList(listId) {
-        if (!window.confirm("Delete this list?")) return;
 
         try {
             await apiCall(`/lists/${listId}`, {
@@ -455,7 +454,7 @@ export default function StudentListPage() {
         <div className="modal-overlay">
             <div className="modal-card">
                 <h2>Add List</h2>
-
+            <form className="task-form">
             <input
                 value={newListName}
                 onChange={(e) => setNewListName(e.target.value)}
@@ -473,6 +472,7 @@ export default function StudentListPage() {
                 Cancel
                 </button>
             </div>
+            </form>
             </div>
         </div>
       )}
@@ -480,7 +480,7 @@ export default function StudentListPage() {
         <div className="modal-overlay">
             <div className="modal-card">
             <h2>Add Task</h2>
-
+        <form className="task-form">
             <input
                 placeholder="Title"
                 value={newTask.title}
@@ -527,6 +527,7 @@ export default function StudentListPage() {
                 Cancel
                 </button>
             </div>
+            </form>
             </div>
         </div>
       )}
@@ -592,9 +593,9 @@ export default function StudentListPage() {
                   }))
                 }
               >
-                <option value="incomplete">incomplete</option>
-                <option value="in_progress">in progress</option>
-                <option value="complete">done</option>
+                <option value="incomplete">Incomplete</option>
+                <option value="in_progress">In-progress</option>
+                <option value="complete">Complete</option>
               </select>
 
               <div className="modal-actions">

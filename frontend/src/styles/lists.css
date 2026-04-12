@@ -194,28 +194,26 @@
 }
 
 .modal-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     background: rgba(20, 26, 38, 0.35);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    z-index: 999;
+    border-radius: 8px;
 }
 
 .modal-card {
-    background: rgba(10, 40, 80, 0.88);
+    background: rgba(10, 40, 80, 0.85);
     border-radius: 18px;
     border: 2px solid rgba(100, 200, 255, 0.25);
     padding: 28px;
-    width: 100%;
-    max-width: 420px;
+    width: 300px;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    position: relative;
     color: #d0eeff;
-    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.55);
 }
 
 .modal-card h2 {
