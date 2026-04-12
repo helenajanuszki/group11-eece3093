@@ -9,6 +9,8 @@ import MoodEntriesPage from "./Journal"
 import AdminDashboard from "./AdminDashboard"
 import AdminStudents from "./AdminStudents"
 import AdminTasksPage from "./AdminTasks"
+import StudentListPage from "./StudentList"
+// import AdminTasksPage from "./AdminTasksPage"
 // import AdminRemindersPage from "./AdminRemindersPage"
 // import AdminListsPage from "./AdminListsPage"
 
@@ -64,6 +66,19 @@ function App() {
             </StudentRoute>
           }
         />
+
+        <Route
+          path="/lists"
+          element={
+            <StudentRoute>
+              <>
+                <Header />
+                <StudentListPage />
+              </>
+            </StudentRoute>
+          }
+        />
+        
 
         <Route
           path="/admin/dashboard"

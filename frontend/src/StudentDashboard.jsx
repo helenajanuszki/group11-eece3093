@@ -68,6 +68,11 @@ export default function StudentDashboard() {
     description: "",
   })
 
+  const notifyListsChanged = () => {
+    localStorage.setItem("studentListsSync", String(Date.now()));
+    window.dispatchEvent(new Event("studentListsUpdated"));
+  };
+
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -116,6 +121,45 @@ export default function StudentDashboard() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key === "studentListsSync") {
+        loadLists();
+
+        if (selectedList) {
+          loadTasksForList(selectedList);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [selectedList]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      loadLists();
+      if (selectedList) {
+        loadTasksForList(selectedList);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [selectedList]);
+
+  useEffect(() => {
+    const handleListsUpdated = async () => {
+      await loadLists();
+      if (selectedList) {
+        await loadTasksForList(selectedList);
+      }
+    };
+
+    window.addEventListener("studentListsUpdated", handleListsUpdated);
+    return () => window.removeEventListener("studentListsUpdated", handleListsUpdated);
+  }, [selectedList]);
 
   useEffect(() => {
     loadLists()
@@ -182,8 +226,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to update task")
 
-      await loadTasksForList(selectedList)
-      closeTaskEditor()
+      await loadTasksForList(selectedList);
+      notifyListsChanged();
+      closeTaskEditor();
     } catch (e) {
       setTaskMessage(e.message || "Failed to update task")
     } finally {
@@ -283,8 +328,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to create task")
 
-      await loadTasksForList(selectedList)
-      closeAddTaskModal()
+      await loadTasksForList(selectedList);
+      notifyListsChanged();
+      closeAddTaskModal();
     } catch (e) {
       setAddTaskMessage(e.message || "Failed to create task")
     } finally {
@@ -327,8 +373,9 @@ export default function StudentDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.ERROR || "Failed to create list")
 
-      await loadLists()
-      closeAddListModal()
+      await loadLists();
+      notifyListsChanged();
+      closeAddListModal();
     } catch (e) {
       setAddListMessage(e.message || "Failed to create list")
     } finally {
