@@ -81,11 +81,13 @@ export default function StudentListPage() {
       const normalizedOwn = ownLists.map((list) => ({
         ...list,
         source: "own",
+        is_admin_list: false,
       }));
 
       const normalizedAssigned = assignedLists.map((list) => ({
         ...list,
         source: "assigned",
+        is_admin_list: true,
       }));
 
       const mergedMap = new Map();
@@ -134,6 +136,11 @@ export default function StudentListPage() {
           list_name: list.name,
           list_source: list.source,
           assigned_by: list.assigned_by || null,
+
+          is_locked:
+            list.source === "assigned" ||
+            list.is_admin_list === true ||
+            task.is_admin_created === true,
         }))
       );
 
