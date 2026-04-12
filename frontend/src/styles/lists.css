@@ -282,6 +282,58 @@
     min-width: 110px;
 }
 
+.task-delete-title {
+    color: #d0eeff;
+    font-size: 15px;
+    text-align: center;
+    margin: 0;
+}
+
+.task-delete-text {
+    color: #d0eeff;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.task-delete-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.task-delete-confirm {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 80, 80, 0.2);
+    border: 2px solid rgba(255, 100, 100, 0.55);
+    border-radius: 8px;
+    color: #ffbbbb;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.task-delete-confirm:hover {
+    background: rgba(255, 80, 80, 0.35);
+    box-shadow: 0 0 16px rgba(255, 80, 80, 0.4);
+}
+
+.task-delete-cancel {
+    flex: 1;
+    padding: 10px;
+    background: rgba(80, 180, 255, 0.2);
+    border: 2px solid rgba(100, 200, 255, 0.55);
+    border-radius: 8px;
+    color: #d0eeff;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.task-delete-cancel:hover {
+    background: rgba(80, 180, 255, 0.35);
+}
+
 @media (max-width: 768px) {
     .task-card {
         padding: 24px 20px;

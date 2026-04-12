@@ -62,6 +62,10 @@ export async function deleteTask(listId, taskId) {
     method: "DELETE",
   });
 
+  if (res.status === 204) {
+    return null;
+  }
+
   const data = await res.json();
 
   if (!res.ok) {

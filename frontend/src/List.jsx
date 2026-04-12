@@ -46,13 +46,17 @@ function normalizeTaskArray(response) {
   return [];
 }
 
-export default function StudentListPage() {
+export default function ListPage() {
   const [lists, setLists] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [selectedListId, setSelectedListId] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingTask, setEditingTask] = useState(null);
+  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [showDeleteListModal, setShowDeleteListModal] = useState(false);
+  const [listToDelete, setListToDelete] = useState(null);
 
   const BG = "/background-faded-blue.avif";
   const location = useLocation();
@@ -216,13 +220,27 @@ export default function StudentListPage() {
   }
 
   async function handleDelete(task) {
+    setTaskToDelete(task);
+    setShowDeleteTaskModal(true);
+  }
+
+  async function confirmDeleteTask() {
+    if (!taskToDelete) return;
+
     try {
-      await deleteTask(task.list_id, task.id);
+      await deleteTask(taskToDelete.list_id, taskToDelete.id);
       notifyListsChanged();
       await loadData();
+      setShowDeleteTaskModal(false);
+      setTaskToDelete(null);
     } catch (err) {
       alert(err.message);
     }
+  }
+
+  function cancelDeleteTask() {
+    setShowDeleteTaskModal(false);
+    setTaskToDelete(null);
   }
 
   async function handleSaveEdit(e) {
@@ -268,19 +286,48 @@ export default function StudentListPage() {
         }
     }
 
-    async function handleDeleteList(listId) {
-
-        try {
-            await apiCall(`/lists/${listId}`, {
-            method: "DELETE",
-            });
-
-            notifyListsChanged();
-            await loadData();
-        } catch (err) {
-            alert(err.message);
-        }
+    function handleDeleteList(listId) {
+      const targetList = lists.find((list) => String(list.id) === String(listId)) || null;
+      if (!targetList || targetList.is_default || targetList.source !== "own") {
+        return;
+      }
+      setListToDelete(targetList);
+      setShowDeleteListModal(true);
     }
+
+    async function confirmDeleteList() {
+      if (!listToDelete) return;
+      if (listToDelete.is_default || listToDelete.source !== "own") {
+        setShowDeleteListModal(false);
+        setListToDelete(null);
+        return;
+      }
+
+      try {
+        await apiCall(`/lists/${listToDelete.id}`, {
+          method: "DELETE",
+        });
+
+        notifyListsChanged();
+        await loadData();
+        setShowDeleteListModal(false);
+        setListToDelete(null);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function cancelDeleteList() {
+      setShowDeleteListModal(false);
+      setListToDelete(null);
+    }
+
+  const selectedList =
+    selectedListId === "all"
+      ? null
+      : lists.find((list) => String(list.id) === String(selectedListId)) || null;
+  const canDeleteSelectedList =
+    !!selectedList && selectedList.source === "own" && selectedList.is_default !== true;
 
   const ownListsOnly = lists.filter((list) => list.source === "own");
 
@@ -330,6 +377,8 @@ export default function StudentListPage() {
             {selectedListId !== "all" && (
                 <button
                     className="small-btn danger"
+                disabled={!canDeleteSelectedList}
+                title={canDeleteSelectedList ? "Delete list" : "Default lists cannot be deleted"}
                     onClick={() => handleDeleteList(selectedListId)}
                 >
                     <FaTrashAlt />
@@ -618,6 +667,66 @@ export default function StudentListPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteTaskModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h2 className="task-delete-title">Delete Task?</h2>
+            <p className="task-delete-text">
+              Are you sure you want to delete "{taskToDelete?.title || "Untitled"}"?
+              <br />
+              This action cannot be undone.
+            </p>
+
+            <div className="task-delete-actions">
+              <button
+                type="button"
+                className="task-delete-confirm"
+                onClick={confirmDeleteTask}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="task-delete-cancel"
+                onClick={cancelDeleteTask}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteListModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h2 className="task-delete-title">Delete List?</h2>
+            <p className="task-delete-text">
+              Are you sure you want to delete "{listToDelete?.name || "this list"}"?
+              <br />
+              This action cannot be undone.
+            </p>
+
+            <div className="task-delete-actions">
+              <button
+                type="button"
+                className="task-delete-confirm"
+                onClick={confirmDeleteList}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="task-delete-cancel"
+                onClick={cancelDeleteList}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
