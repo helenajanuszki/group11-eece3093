@@ -1,0 +1,233 @@
+.sr-page {
+	min-height: 100vh;
+	background-size: cover;
+	background-position: center;
+	padding: 40px 20px;
+	display: flex;
+	justify-content: center;
+}
+
+.sr-shell {
+	width: 100%;
+	max-width: 1100px;
+}
+
+.sr-header {
+	color: #fff;
+	font-size: 2rem;
+	margin-bottom: 12px;
+}
+
+.sr-card {
+	background: rgba(10, 40, 80, 0.55);
+	border: 2px solid rgba(100, 200, 255, 0.25);
+	border-radius: 14px;
+	padding: 14px;
+	margin-bottom: 14px;
+	color: #dff4ff;
+}
+
+.sr-title {
+	margin: 0 0 10px;
+	color: #dff4ff;
+}
+
+.sr-note {
+	color: #dff4ff;
+	margin-top: 8px;
+}
+
+.sr-reminder-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.sr-reminder-item {
+	border: 1px solid rgba(100, 200, 255, 0.25);
+	border-radius: 10px;
+	padding: 10px;
+	background: rgba(170, 220, 255, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	aspect-ratio: 1 / 1;
+	cursor: pointer;
+	transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.sr-reminder-item:hover {
+	transform: translateY(-2px);
+	border-color: rgba(130, 210, 255, 0.55);
+	background: rgba(170, 220, 255, 0.12);
+}
+
+.sr-reminder-title {
+	display: block;
+	line-height: 1.2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	line-clamp: 3;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+.sr-reminder-desc {
+	font-size: 0.86rem;
+	color: #cde9ff;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	line-clamp: 5;
+	-webkit-line-clamp: 5;
+	-webkit-box-orient: vertical;
+}
+
+.sr-reminder-source {
+	font-size: 0.8rem;
+	color: #e5f4ff;
+	opacity: 0.9;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sr-reminder-actions {
+	display: flex;
+	gap: 6px;
+	margin-top: auto;
+}
+
+.sr-btn {
+	width: fit-content;
+	border: 1px solid rgba(100, 200, 255, 0.45);
+	border-radius: 8px;
+	background: rgba(80, 180, 255, 0.22);
+	color: #e6f6ff;
+	padding: 8px 12px;
+	cursor: pointer;
+}
+
+.sr-mini-btn {
+	flex: 1 1 0;
+	font-size: 0.8rem;
+	padding: 6px 8px;
+	white-space: nowrap;
+	text-align: center;
+}
+
+.sr-btn-danger {
+	border-color: rgba(255, 120, 120, 0.55);
+	background: rgba(255, 80, 80, 0.2);
+}
+
+.sr-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 20, 40, 0.65);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 16px;
+}
+
+.sr-modal {
+	width: min(560px, 100%);
+	background: rgba(10, 40, 80, 0.95);
+	border: 2px solid rgba(100, 200, 255, 0.35);
+	border-radius: 14px;
+	padding: 14px;
+	display: grid;
+	gap: 8px;
+	position: relative;
+}
+
+.sr-close {
+	position: absolute;
+	right: 8px;
+	top: 6px;
+	border: none;
+	background: transparent;
+	color: #d0eeff;
+	font-size: 22px;
+	cursor: pointer;
+}
+
+.sr-view-row,
+.sr-view-label {
+	color: #ffffff;
+}
+
+.sr-delete-title {
+	margin: 0;
+	color: #dff4ff;
+	text-transform: lowercase;
+}
+
+.sr-delete-text {
+	margin: 0;
+	color: #cfeeff;
+	text-transform: lowercase;
+}
+
+.sr-delete-actions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.sr-delete-confirm,
+.sr-delete-cancel {
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 8px 12px;
+	cursor: pointer;
+	text-transform: lowercase;
+}
+
+.sr-delete-confirm {
+	border-color: rgba(255, 120, 120, 0.55);
+	background: rgba(255, 80, 80, 0.25);
+	color: #ffe8e8;
+}
+
+.sr-delete-cancel {
+	border-color: rgba(100, 200, 255, 0.45);
+	background: rgba(80, 180, 255, 0.22);
+	color: #e6f6ff;
+}
+
+.sr-delete-confirm:disabled,
+.sr-delete-cancel:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+@media (max-width: 1200px) {
+	.sr-reminder-list {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 900px) {
+	.sr-reminder-list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 640px) {
+	.sr-reminder-list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 420px) {
+	.sr-reminder-list {
+		grid-template-columns: 1fr;
+	}
+}

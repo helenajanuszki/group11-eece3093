@@ -564,4 +564,41 @@ def edit_admin_tasks_batch():
     db.session.commit()
 
     return jsonify({"count": len(tasks)}), 200
+
+
+@todo_bp.route("/admin/tasks/batch", methods=["DELETE"])
+@jwt_required()
+@admin_required
+def delete_admin_tasks_batch():
+    admin_id = int(get_jwt_identity())
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"ERROR": "No data provided"}), 400
+
+    task_ids = data.get("task_ids")
+    if not isinstance(task_ids, list) or not task_ids:
+        return jsonify({"ERROR": "task_ids must be a non-empty list"}), 400
+
+    tasks = []
+    for raw_id in task_ids:
+        try:
+            task_id = int(raw_id)
+        except (TypeError, ValueError):
+            return jsonify({"ERROR": "task_ids must contain integers"}), 400
+
+        task = db.session.get(Task, task_id)
+        if not task:
+            return jsonify({"ERROR": f"Task {task_id} not found"}), 404
+
+        if not _admin_owned_task(task.id, admin_id):
+            return jsonify({"ERROR": "Forbidden"}), 403
+
+        tasks.append(task)
+
+    for task in tasks:
+        db.session.delete(task)
+
+    db.session.commit()
+
+    return jsonify({"count": len(tasks)}), 200
 #endregion

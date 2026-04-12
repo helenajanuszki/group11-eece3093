@@ -5,20 +5,14 @@ import Header from "./components/Header"
 
 import StudentDashboard from "./StudentDashboard"
 import MoodEntriesPage from "./Journal"
+import StudentRemindersPage from "./StudentReminders"
 
 import AdminDashboard from "./AdminDashboard"
 import AdminStudents from "./AdminStudents"
 import AdminTasksPage from "./AdminTasks"
 import StudentListPage from "./StudentList"
-// import AdminTasksPage from "./AdminTasksPage"
-// import AdminRemindersPage from "./AdminRemindersPage"
-// import AdminListsPage from "./AdminListsPage"
+import AdminRemindersPage from "./AdminReminders"
 
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token")
-  if (!token) return <Navigate to="/login" />
-  return children
-}
 
 function StudentRoute({ children }) {
   const token = localStorage.getItem("token")
@@ -78,6 +72,19 @@ function App() {
             </StudentRoute>
           }
         />
+
+        <Route
+          path="/reminders"
+          element={
+            <StudentRoute>
+              <>
+                <Header />
+                <StudentRemindersPage />
+              </>
+            </StudentRoute>
+          }
+        />
+
         
 
         <Route
@@ -103,8 +110,7 @@ function App() {
             </AdminRoute>
           }
         />
-        {/* 
-
+        
         <Route
           path="/admin/reminders"
           element={
@@ -115,7 +121,7 @@ function App() {
               </>
             </AdminRoute>
           }
-        /> */}
+        />
 
         <Route
           path="/admin/students"

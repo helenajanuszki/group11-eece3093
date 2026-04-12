@@ -133,11 +133,15 @@ class Reminder(db.Model):
     recipients = db.relationship("User", secondary=reminder_recipients, lazy=True)
 
     def to_json(self):
+        creator_username = self.creator_user.username if self.creator_user else None
+        creator_email = self.creator_user.email if self.creator_user else None
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
             "due_date": self.due_date.isoformat() if self.due_date else None,
             "creator": self.creator,
+            "creator_username": creator_username,
+            "creator_email": creator_email,
             "recipients": [user.id for user in self.recipients],
         }
